@@ -8,8 +8,6 @@ import {
   MapPin,
   Building2,
   Calendar,
-  Clock,
-  Star,
   Award,
   FileText,
   MessageSquare,
@@ -26,13 +24,12 @@ import { useDatabase } from "@/app/protected/database-context";
 export default function EmployeDetailPage() {
   const params = useParams();
   const employeeId = params.id as string;
-  const { employees, assignments, projects, fetchEmployees, fetchAssignments, fetchProjects } = useDatabase();
+  const { employees, assignments, fetchEmployees, fetchAssignments } = useDatabase();
 
   useEffect(() => {
     fetchEmployees();
     fetchAssignments();
-    fetchProjects();
-  }, [fetchEmployees, fetchAssignments, fetchProjects]);
+  }, [fetchEmployees, fetchAssignments]);
 
   const employee = employees.data.find((e) => e.id === employeeId);
 
@@ -85,7 +82,7 @@ export default function EmployeDetailPage() {
 
       <PageBanner
         title={employee.name || "Employé"}
-        subtitle={employee.role || "Aucun rôle spécifié"}
+        subtitle={employee.jobTitle || "Aucun rôle spécifié"}
         stats={[
           {
             value: employee.createdAt
@@ -185,7 +182,7 @@ export default function EmployeDetailPage() {
                     Département
                   </p>
                   <p className="text-base font-semibold text-slate-900">
-                    {employee.department || "Non renseigné"}
+                    {employee.department?.name || "Non renseigné"}
                   </p>
                 </div>
               </div>
@@ -290,12 +287,12 @@ export default function EmployeDetailPage() {
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {employee.skills && employee.skills.length > 0 ? (
-                    employee.skills.map((skill, index) => (
+                    employee.skills.map((employeeSkill, index) => (
                       <span
                         key={index}
                         className="rounded-full border border-slate-200 px-3 py-1 text-sm font-medium text-slate-600"
                       >
-                        {skill}
+                        {employeeSkill.skill?.name || "Compétence"}
                       </span>
                     ))
                   ) : (
@@ -307,7 +304,7 @@ export default function EmployeDetailPage() {
               </div>
               <div className="space-y-3">
                 {employee.certifications && employee.certifications.length > 0 ? (
-                  employee.certifications.map((certification, index) => (
+                  employee.certifications.map((employeeCertification, index) => (
                     <div
                       key={index}
                       className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-3"
@@ -315,8 +312,13 @@ export default function EmployeDetailPage() {
                       <Award className="h-5 w-5 text-amber-500" />
                       <div>
                         <p className="font-semibold text-slate-900">
-                          {certification}
+                          {employeeCertification.certificationName || "Certification"}
                         </p>
+                        {employeeCertification.issueDate && (
+                          <p className="text-xs text-slate-500">
+                            {new Date(employeeCertification.issueDate).getFullYear()}
+                          </p>
+                        )}
                       </div>
                     </div>
                   ))
