@@ -1,0 +1,1528 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employés</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      window.FontAwesomeConfig = {
+        autoReplaceSvg: "nest",
+      };
+    </script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+            },
+            colors: {
+              primary: "#2563eb",
+              secondary: "#f1f5f9",
+              accent: "#10b981",
+              warning: "#f59e0b",
+              danger: "#ef4444",
+              cdi: "#10b981",
+              interim: "#f59e0b",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+    <style data-grapesjs-styles="true">
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
+      }
+
+      #i1rwja {
+        width: 85%;
+      }
+
+      #itylxp {
+        width: 75%;
+      }
+
+      #id0huz {
+        width: 92%;
+      }
+
+      #i7c51o {
+        width: 89%;
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-50 font-inter">
+    <!-- COMPONENT: Header -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employés</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employés</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <header
+      id="header"
+      class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50"
+    >
+      <div class="flex items-center justify-between px-6 py-4">
+        <div class="flex items-center space-x-6">
+          <div class="flex items-center space-x-3">
+            <div
+              class="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center"
+            >
+              <i class="fa-solid fa-building text-white text-lg"></i>
+            </div>
+            <div>
+              <h1 class="text-xl font-bold text-gray-900">TCHOULFIAN</h1>
+              <p class="text-sm text-gray-500">
+                Gestion d'équipes &amp; Projets
+              </p>
+            </div>
+          </div>
+          <div
+            class="hidden lg:flex items-center space-x-1 bg-gray-50 rounded-xl p-1"
+          >
+            <button
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm rounded-lg hover:bg-white transition-colors"
+            >
+              <i class="fa-solid fa-chart-line mr-2"></i>Tableau de bord</button
+            ><button
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm rounded-lg hover:bg-white transition-colors"
+            >
+              <i class="fa-solid fa-calendar-days mr-2"></i>Planning</button
+            ><button
+              class="px-4 py-2 bg-white rounded-lg shadow-sm text-primary font-medium text-sm"
+            >
+              <i class="fa-solid fa-users mr-2"></i>Employés</button
+            ><button
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm rounded-lg hover:bg-white transition-colors"
+            >
+              <i class="fa-solid fa-hard-hat mr-2"></i>Chantiers</button
+            ><button
+              class="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm rounded-lg hover:bg-white transition-colors"
+            >
+              <i class="fa-solid fa-graduation-cap mr-2"></i>Formations
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              class="w-64 pl-10 pr-4 py-2 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+            /><i
+              class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            ></i>
+          </div>
+          <button
+            class="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <i class="fa-regular fa-bell text-lg"></i
+            ><span
+              class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+              >3</span
+            >
+          </button>
+          <div class="flex items-center space-x-3">
+            <div class="text-right">
+              <p class="text-sm font-medium text-gray-900">Marie Dubois</p>
+              <p class="text-xs text-gray-500">Chef d'équipe</p>
+            </div>
+            <img
+              src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
+              alt="Profile"
+              class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+    <!-- COMPONENT: Page Header -->
+    <section
+      id="page-header"
+      class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-8"
+    >
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">
+              Annuaire des employés
+            </h2>
+            <p class="text-lg text-gray-600">
+              Gérez votre équipe et suivez les informations de vos employés
+            </p>
+            <div class="flex items-center space-x-6 mt-4">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-cdi rounded-full"></div>
+                <span class="text-sm text-gray-600">CDI: 42 employés</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-interim rounded-full"></div>
+                <span class="text-sm text-gray-600"
+                  >Intérimaires: 23 employés</span
+                >
+              </div>
+              <div class="text-sm text-gray-600">Total: 65 employés</div>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <button
+              id="add-employee-btn"
+              class="bg-primary text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:bg-blue-700 transition-all flex items-center space-x-2 text-lg"
+            >
+              <i class="fa-solid fa-plus"></i
+              ><span>Ajouter un employé</span></button
+            ><button
+              class="bg-white text-primary border-2 border-primary px-6 py-3 rounded-xl font-medium hover:bg-primary hover:text-white transition-all flex items-center space-x-2 text-lg"
+            >
+              <i class="fa-solid fa-download"></i><span>Exporter</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Search and Filters -->
+    <section id="search-filters" class="px-6 py-8 bg-white shadow-sm">
+      <div class="max-w-7xl mx-auto">
+        <div
+          class="flex flex-col lg:flex-row items-center justify-between space-y-4 lg:space-y-0 lg:space-x-6"
+        >
+          <div class="flex-1 w-full lg:w-auto">
+            <div class="relative">
+              <i
+                class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              ></i
+              ><input
+                type="text"
+                placeholder="Rechercher par nom, prénom, poste ou département..."
+                class="w-full pl-12 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 bg-gray-50 rounded-xl p-1">
+              <button
+                class="px-4 py-2 bg-white rounded-lg shadow-sm text-primary font-medium text-sm"
+              >
+                Tous</button
+              ><button
+                class="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm rounded-lg hover:bg-white transition-colors"
+              >
+                CDI</button
+              ><button
+                class="px-4 py-2 text-gray-600 hover:text-gray-900 font-medium text-sm rounded-lg hover:bg-white transition-colors"
+              >
+                Intérim
+              </button>
+            </div>
+            <select
+              class="px-4 py-2 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20"
+            >
+              <option>Tous les départements</option>
+              <option>Construction</option>
+              <option>Électricité</option>
+              <option>Plomberie</option>
+              <option>Management</option>
+              <option>Administration</option></select
+            ><select
+              class="px-4 py-2 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20"
+            >
+              <option>Trier par nom</option>
+              <option>Trier par date d'embauche</option>
+              <option>Trier par département</option>
+              <option>Trier par statut</option></select
+            ><button
+              class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <i class="fa-solid fa-filter text-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Employee Statistics Cards -->
+    <section id="employee-stats" class="px-6 py-8">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"
+              >
+                <i class="fa-solid fa-users text-blue-600 text-xl"></i>
+              </div>
+              <span class="text-2xl">👥</span>
+            </div>
+            <h4 class="text-2xl font-bold text-gray-900">65</h4>
+            <p class="text-gray-600 font-medium">Total employés</p>
+          </div>
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center"
+              >
+                <i class="fa-solid fa-user-check text-green-600 text-xl"></i>
+              </div>
+              <span class="text-2xl">✅</span>
+            </div>
+            <h4 class="text-2xl font-bold text-gray-900">48</h4>
+            <p class="text-gray-600 font-medium">Actifs sur site</p>
+          </div>
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center"
+              >
+                <i class="fa-solid fa-clock text-yellow-600 text-xl"></i>
+              </div>
+              <span class="text-2xl">⏱️</span>
+            </div>
+            <h4 class="text-2xl font-bold text-gray-900">17</h4>
+            <p class="text-gray-600 font-medium">Disponibles</p>
+          </div>
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center"
+              >
+                <i class="fa-solid fa-graduation-cap text-red-600 text-xl"></i>
+              </div>
+              <span class="text-2xl">📚</span>
+            </div>
+            <h4 class="text-2xl font-bold text-gray-900">5</h4>
+            <p class="text-gray-600 font-medium">Formations expirées</p>
+          </div>
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"
+              >
+                <i class="fa-solid fa-user-plus text-purple-600 text-xl"></i>
+              </div>
+              <span class="text-2xl">🆕</span>
+            </div>
+            <h4 class="text-2xl font-bold text-gray-900">3</h4>
+            <p class="text-gray-600 font-medium">Nouveaux ce mois</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Employee List Header -->
+    <section id="employee-list-header" class="px-6 pb-4">
+      <div class="max-w-7xl mx-auto">
+        <div class="bg-white rounded-t-2xl shadow-sm border border-gray-100">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  Liste des employés
+                </h3>
+                <span
+                  class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium"
+                  >65 résultats</span
+                >
+              </div>
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <i class="fa-solid fa-th-large"></i></button
+                ><button class="p-2 text-primary bg-blue-50 rounded-lg">
+                  <i class="fa-solid fa-list"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Table Header -->
+          <div
+            class="px-6 py-3 bg-gray-50 grid grid-cols-12 gap-4 text-sm font-medium text-gray-600 uppercase tracking-wide"
+          >
+            <div class="col-span-3">Employé</div>
+            <div class="col-span-2">Poste</div>
+            <div class="col-span-2">Département</div>
+            <div class="col-span-1">Statut</div>
+            <div class="col-span-1">Type</div>
+            <div class="col-span-2">Dernière activité</div>
+            <div class="col-span-1">Actions</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Employee List -->
+    <section id="employee-list" class="px-6">
+      <div class="max-w-7xl mx-auto">
+        <div
+          class="bg-white shadow-sm border-x border-gray-100 divide-y divide-gray-100"
+        >
+          <!-- Employee 1 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
+                alt="Jean Dupont"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Jean Dupont</h4>
+                <p class="text-sm text-gray-600">
+                  jean.dupont@techconstruct.fr
+                </p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 89</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Chef de chantier</p>
+              <p class="text-sm text-gray-600">Niveau 3</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Construction</p>
+              <p class="text-sm text-gray-600">Équipe Alpha</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
+                >Actif</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div title="CDI" class="w-3 h-3 bg-cdi rounded-full"></div>
+                <span class="text-sm text-gray-600">CDI</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Projet Harmony</p>
+              <p class="text-xs text-gray-500">Il y a 2 heures</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Employee 2 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-5.jpg"
+                alt="Sophie Martin"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Sophie Martin</h4>
+                <p class="text-sm text-gray-600">
+                  sophie.martin@techconstruct.fr
+                </p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 90</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Électricienne</p>
+              <p class="text-sm text-gray-600">Niveau 2</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Électricité</p>
+              <p class="text-sm text-gray-600">Équipe Beta</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium"
+                >Formation</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div title="CDI" class="w-3 h-3 bg-cdi rounded-full"></div>
+                <span class="text-sm text-gray-600">CDI</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Formation CACES</p>
+              <p class="text-xs text-gray-500">Il y a 1 jour</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Employee 3 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-3.jpg"
+                alt="Pierre Moreau"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Pierre Moreau</h4>
+                <p class="text-sm text-gray-600">pierre.moreau@interim.fr</p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 91</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Maçon</p>
+              <p class="text-sm text-gray-600">Niveau 2</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Construction</p>
+              <p class="text-sm text-gray-600">Équipe Alpha</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
+                >Actif</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div
+                  title="Intérimaire"
+                  class="w-3 h-3 bg-interim rounded-full"
+                ></div>
+                <span class="text-sm text-gray-600">Intérim</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Projet Harmony</p>
+              <p class="text-xs text-gray-500">Il y a 3 heures</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Employee 4 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-7.jpg"
+                alt="Thomas Lefebvre"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Thomas Lefebvre</h4>
+                <p class="text-sm text-gray-600">
+                  thomas.lefebvre@techconstruct.fr
+                </p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 92</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Plombier</p>
+              <p class="text-sm text-gray-600">Niveau 3</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Plomberie</p>
+              <p class="text-sm text-gray-600">Équipe Gamma</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
+                >Actif</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div title="CDI" class="w-3 h-3 bg-cdi rounded-full"></div>
+                <span class="text-sm text-gray-600">CDI</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Projet Usine Nord</p>
+              <p class="text-xs text-gray-500">Il y a 1 heure</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Employee 5 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-6.jpg"
+                alt="Lucie Rousseau"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Lucie Rousseau</h4>
+                <p class="text-sm text-gray-600">
+                  lucie.rousseau@techconstruct.fr
+                </p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 93</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Assistante de projet</p>
+              <p class="text-sm text-gray-600">Niveau 1</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Administration</p>
+              <p class="text-sm text-gray-600">Support</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium"
+                >Disponible</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div title="CDI" class="w-3 h-3 bg-cdi rounded-full"></div>
+                <span class="text-sm text-gray-600">CDI</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Rapport mensuel</p>
+              <p class="text-xs text-gray-500">Il y a 4 heures</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Employee 6 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-8.jpg"
+                alt="Marc Durand"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Marc Durand</h4>
+                <p class="text-sm text-gray-600">marc.durand@interim.fr</p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 94</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Opérateur de grue</p>
+              <p class="text-sm text-gray-600">Niveau 3</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Construction</p>
+              <p class="text-sm text-gray-600">Équipe Delta</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium"
+                >Formation exp.</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div
+                  title="Intérimaire"
+                  class="w-3 h-3 bg-interim rounded-full"
+                ></div>
+                <span class="text-sm text-gray-600">Intérim</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Formation CACES exp.</p>
+              <p class="text-xs text-red-600">Expire dans 3 jours</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Employee 7 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-9.jpg"
+                alt="Lucas Bernard"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Lucas Bernard</h4>
+                <p class="text-sm text-gray-600">
+                  lucas.bernard@techconstruct.fr
+                </p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 95</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Carreleur</p>
+              <p class="text-sm text-gray-600">Niveau 1</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Construction</p>
+              <p class="text-sm text-gray-600">Équipe Alpha</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                >Nouveau</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div title="CDI" class="w-3 h-3 bg-cdi rounded-full"></div>
+                <span class="text-sm text-gray-600">CDI</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Onboarding</p>
+              <p class="text-xs text-gray-500">Embauché hier</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Employee 8 -->
+          <div
+            class="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+          >
+            <div class="col-span-3 flex items-center space-x-4">
+              <img
+                src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-1.jpg"
+                alt="Marie Dubois"
+                class="w-12 h-12 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="font-semibold text-gray-900">Marie Dubois</h4>
+                <p class="text-sm text-gray-600">
+                  marie.dubois@techconstruct.fr
+                </p>
+                <p class="text-xs text-gray-500">+33 1 23 45 67 96</p>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="font-medium text-gray-900">Chef d'équipe</p>
+              <p class="text-sm text-gray-600">Management</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-900">Management</p>
+              <p class="text-sm text-gray-600">Direction</p>
+            </div>
+            <div class="col-span-1">
+              <span
+                class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium"
+                >Actif</span
+              >
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <div title="CDI" class="w-3 h-3 bg-cdi rounded-full"></div>
+                <span class="text-sm text-gray-600">CDI</span>
+              </div>
+            </div>
+            <div class="col-span-2">
+              <p class="text-sm text-gray-900">Tableau de bord</p>
+              <p class="text-xs text-gray-500">En ligne maintenant</p>
+            </div>
+            <div class="col-span-1">
+              <div class="flex items-center space-x-2">
+                <button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-eye"></i></button
+                ><button
+                  class="p-1 text-gray-500 hover:text-primary transition-colors"
+                >
+                  <i class="fa-solid fa-edit"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Pagination -->
+    <section id="pagination" class="px-6 pb-8">
+      <div class="max-w-7xl mx-auto">
+        <div
+          class="bg-white rounded-b-2xl shadow-sm border border-gray-100 px-6 py-4"
+        >
+          <div class="flex items-center justify-between">
+            <div class="text-sm text-gray-600">
+              Affichage de 1 à 8 sur 65 employés
+            </div>
+            <div class="flex items-center space-x-2">
+              <button
+                class="px-3 py-2 text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <i class="fa-solid fa-chevron-left"></i></button
+              ><button class="px-3 py-2 bg-primary text-white rounded-lg">
+                1</button
+              ><button
+                class="px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                2</button
+              ><button
+                class="px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                3</button
+              ><span class="px-3 py-2 text-gray-500">...</span
+              ><button
+                class="px-3 py-2 text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                9</button
+              ><button
+                class="px-3 py-2 text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Department Overview -->
+    <!-- COMPONENT: Skills & Certifications -->
+    <section id="skills-certifications" class="px-6 py-8">
+      <div class="max-w-7xl mx-auto">
+        <h3 class="text-2xl font-bold text-gray-900 mb-6">Certifications</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Skills Overview -->
+          <!-- Certifications Status -->
+          <div
+            class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+          >
+            <h4 class="text-lg font-semibold text-gray-900 mb-4">
+              État des certifications
+            </h4>
+            <div class="space-y-4">
+              <div
+                class="p-4 bg-green-50 rounded-lg border-l-4 border-green-500"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h5 class="font-medium text-gray-900">CACES R489</h5>
+                  <span class="text-sm font-medium text-green-600"
+                    >42 certifiés</span
+                  >
+                </div>
+                <div class="w-full bg-green-200 rounded-full h-2">
+                  <div id="i1rwja" class="bg-green-500 h-2 rounded-full"></div>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">
+                  85% de l'équipe construction
+                </p>
+              </div>
+              <div
+                class="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-500"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <h5 class="font-medium text-gray-900">
+                    Habilitation électrique
+                  </h5>
+                  <span class="text-sm font-medium text-yellow-600"
+                    >15 certifiés</span
+                  >
+                </div>
+                <div class="w-full bg-yellow-200 rounded-full h-2">
+                  <div id="itylxp" class="bg-yellow-500 h-2 rounded-full"></div>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">3 expirent ce mois</p>
+              </div>
+              <div class="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                <div class="flex items-center justify-between mb-2">
+                  <h5 class="font-medium text-gray-900">Formation sécurité</h5>
+                  <span class="text-sm font-medium text-red-600"
+                    >5 expirées</span
+                  >
+                </div>
+                <div class="w-full bg-red-200 rounded-full h-2">
+                  <div id="id0huz" class="bg-red-500 h-2 rounded-full"></div>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Renouvellement urgent</p>
+              </div>
+              <div class="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                <div class="flex items-center justify-between mb-2">
+                  <h5 class="font-medium text-gray-900">Permis de conduire</h5>
+                  <span class="text-sm font-medium text-blue-600"
+                    >58 valides</span
+                  >
+                </div>
+                <div class="w-full bg-blue-200 rounded-full h-2">
+                  <div id="i7c51o" class="bg-blue-500 h-2 rounded-full"></div>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">89% de l'équipe</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Recent Activities -->
+    <section id="recent-activities" class="px-6 py-8 bg-white">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-2xl font-bold text-gray-900">Activités récentes</h3>
+          <button class="text-primary hover:text-blue-700 font-medium">
+            Voir toutes les activités
+          </button>
+        </div>
+        <div class="bg-gray-50 rounded-2xl p-6">
+          <div class="space-y-4">
+            <div class="flex items-start space-x-4 p-4 bg-white rounded-xl">
+              <div
+                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fa-solid fa-user-plus text-blue-600"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">Nouvel employé ajouté</p>
+                <p class="text-gray-600">
+                  Lucas Bernard a été embauché comme carreleur en CDI
+                </p>
+                <p class="text-sm text-gray-500 mt-1">Il y a 2 heures</p>
+              </div>
+              <div title="CDI" class="w-3 h-3 bg-cdi rounded-full mt-2"></div>
+            </div>
+            <div class="flex items-start space-x-4 p-4 bg-white rounded-xl">
+              <div
+                class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fa-solid fa-graduation-cap text-green-600"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">Formation terminée</p>
+                <p class="text-gray-600">
+                  Pierre Moreau a terminé sa formation CACES R489
+                </p>
+                <p class="text-sm text-gray-500 mt-1">Il y a 5 heures</p>
+              </div>
+              <div
+                title="Intérimaire"
+                class="w-3 h-3 bg-interim rounded-full mt-2"
+              ></div>
+            </div>
+            <div class="flex items-start space-x-4 p-4 bg-white rounded-xl">
+              <div
+                class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fa-solid fa-user-edit text-yellow-600"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">Profil mis à jour</p>
+                <p class="text-gray-600">
+                  Sophie Martin a obtenu une nouvelle certification électrique
+                </p>
+                <p class="text-sm text-gray-500 mt-1">Hier à 16:30</p>
+              </div>
+              <div title="CDI" class="w-3 h-3 bg-cdi rounded-full mt-2"></div>
+            </div>
+            <div class="flex items-start space-x-4 p-4 bg-white rounded-xl">
+              <div
+                class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fa-solid fa-exclamation-triangle text-red-600"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">Alerte certification</p>
+                <p class="text-gray-600">
+                  La certification CACES de Marc Durand expire dans 3 jours
+                </p>
+                <p class="text-sm text-gray-500 mt-1">Hier à 09:00</p>
+              </div>
+              <div
+                title="Intérimaire"
+                class="w-3 h-3 bg-interim rounded-full mt-2"
+              ></div>
+            </div>
+            <div class="flex items-start space-x-4 p-4 bg-white rounded-xl">
+              <div
+                class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fa-solid fa-calendar-check text-purple-600"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900">Affectation projet</p>
+                <p class="text-gray-600">
+                  Thomas Lefebvre assigné au projet Résidence Harmony
+                </p>
+                <p class="text-sm text-gray-500 mt-1">Il y a 2 jours</p>
+              </div>
+              <div title="CDI" class="w-3 h-3 bg-cdi rounded-full mt-2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- COMPONENT: Performance Metrics -->
+    <!-- COMPONENT: Add Employee Modal -->
+    <div
+      id="add-employee-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      >
+        <div class="p-8">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">
+              Ajouter un nouvel employé
+            </h2>
+            <button
+              id="close-modal"
+              class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <i class="fa-solid fa-times text-xl"></i>
+            </button>
+          </div>
+          <form class="space-y-8">
+            <!-- Personal Information -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                Informations personnelles
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Prénom *</label
+                  ><input
+                    type="text"
+                    placeholder="Prénom de l'employé"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Nom *</label
+                  ><input
+                    type="text"
+                    placeholder="Nom de famille"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Email *</label
+                  ><input
+                    type="email"
+                    placeholder="email@techconstruct.fr"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Téléphone</label
+                  ><input
+                    type="tel"
+                    placeholder="+33 1 23 45 67 89"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Date de naissance</label
+                  ><input
+                    type="date"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Adresse</label
+                  ><input
+                    type="text"
+                    placeholder="Adresse complète"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+            <!-- Employment Information -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                Informations d'emploi
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Poste *</label
+                  ><input
+                    type="text"
+                    placeholder="Intitulé du poste"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Type de contrat *</label
+                  ><select
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  >
+                    <option value="">Sélectionner le type</option>
+                    <option value="cdi">CDI</option>
+                    <option value="interim">Intérim</option>
+                    <option value="cdd">CDD</option>
+                    <option value="stage">Stage</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Département *</label
+                  ><select
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  >
+                    <option value="">Sélectionner le département</option>
+                    <option value="construction">Construction</option>
+                    <option value="electricite">Électricité</option>
+                    <option value="plomberie">Plomberie</option>
+                    <option value="management">Management</option>
+                    <option value="administration">Administration</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Équipe</label
+                  ><select
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  >
+                    <option value="">Sélectionner l'équipe</option>
+                    <option value="alpha">Équipe Alpha</option>
+                    <option value="beta">Équipe Beta</option>
+                    <option value="gamma">Équipe Gamma</option>
+                    <option value="delta">Équipe Delta</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Date d'embauche *</label
+                  ><input
+                    type="date"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Salaire (€/mois)</label
+                  ><input
+                    type="number"
+                    placeholder="3500"
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </div>
+              </div>
+            </div>
+            <!-- Skills and Certifications -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                Compétences et formations
+              </h3>
+              <div class="space-y-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Compétences principales</label
+                  >
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Construction générale</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Électricité</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Plomberie</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Mécanique</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Soudure</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Carrelage</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Peinture</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Management</span
+                      ></label
+                    >
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Formations requises</label
+                  >
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >CACES R489 (Grue mobile)</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Habilitation électrique</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Formation sécurité</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Permis C (Poids lourd)</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Sauveteur secouriste</span
+                      ></label
+                    ><label class="flex items-center space-x-2"
+                      ><input
+                        type="checkbox"
+                        class="rounded text-primary focus:ring-primary/20"
+                      /><span class="text-sm text-gray-700"
+                        >Travail en hauteur</span
+                      ></label
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Additional Information -->
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                Informations complémentaires
+              </h3>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Notes</label
+                  ><textarea
+                    rows="3"
+                    placeholder="Notes additionnelles sur l'employé..."
+                    class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                  ></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Personne à contacter en urgence</label
+                    ><input
+                      type="text"
+                      placeholder="Nom et téléphone"
+                      class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Numéro de sécurité sociale</label
+                    ><input
+                      type="text"
+                      placeholder="1 23 45 67 890 123 45"
+                      class="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Form Actions -->
+            <div
+              class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200"
+            >
+              <button
+                type="button"
+                id="cancel-modal"
+                class="px-6 py-3 text-gray-600 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50 transition-all"
+              >
+                Annuler</button
+              ><button
+                type="submit"
+                class="px-6 py-3 bg-primary text-white rounded-xl font-medium shadow-lg hover:bg-blue-700 transition-all"
+              >
+                Ajouter l'employé
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- COMPONENT: Footer -->
+    <footer
+      id="footer"
+      class="bg-white border-t border-gray-200 px-6 py-8 mt-8"
+    >
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div class="flex items-center space-x-3 mb-4">
+              <div
+                class="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center"
+              >
+                <i class="fa-solid fa-building text-white"></i>
+              </div>
+              <span class="text-lg font-bold text-gray-900">TCHOULFIAN</span>
+            </div>
+            <p class="text-gray-600 text-sm">
+              Solution complète de gestion d'équipes et de projets pour
+              l'industrie de la construction.
+            </p>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-900 mb-4">Navigation</h4>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li>
+                <a href="#" class="hover:text-primary">Tableau de bord</a>
+              </li>
+              <li><a href="#" class="hover:text-primary">Planning</a></li>
+              <li><a href="#" class="hover:text-primary">Employés</a></li>
+              <li><a href="#" class="hover:text-primary">Projets</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-900 mb-4">Support</h4>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li><a href="#" class="hover:text-primary">Centre d'aide</a></li>
+              <li><a href="#" class="hover:text-primary">Documentation</a></li>
+              <li><a href="#" class="hover:text-primary">Contact</a></li>
+              <li><a href="#" class="hover:text-primary">Formation</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-gray-900 mb-4">Informations</h4>
+            <ul class="space-y-2 text-sm text-gray-600">
+              <li>Version 2.1.3</li>
+              <li>Dernière mise à jour: 1 Nov 2024</li>
+              <li>Serveur: Opérationnel</li>
+              <li>Maintenance: Dimanche 03:00</li>
+            </ul>
+          </div>
+        </div>
+        <div
+          class="border-t border-gray-200 mt-8 pt-6 text-center text-sm text-gray-500"
+        >
+          <p>© 2024 TechConstruct Pro. Tous droits réservés.</p>
+        </div>
+      </div>
+    </footer>
+    <script>
+      // Modal functionality
+      const addEmployeeBtn = document.getElementById("add-employee-btn");
+      const modal = document.getElementById("add-employee-modal");
+      const closeModal = document.getElementById("close-modal");
+      const cancelModal = document.getElementById("cancel-modal");
+
+      addEmployeeBtn.addEventListener("click", () => {
+        modal.classList.remove("hidden");
+      });
+
+      closeModal.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      cancelModal.addEventListener("click", () => {
+        modal.classList.add("hidden");
+      });
+
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+          modal.classList.add("hidden");
+        }
+      });
+
+      // Filter functionality
+      const filterButtons = document.querySelectorAll("#search-filters button");
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          if (
+            button.textContent.includes("Tous") ||
+            button.textContent.includes("CDI") ||
+            button.textContent.includes("Intérim")
+          ) {
+            filterButtons.forEach((btn) => {
+              if (
+                btn.textContent.includes("Tous") ||
+                btn.textContent.includes("CDI") ||
+                btn.textContent.includes("Intérim")
+              ) {
+                btn.classList.remove("bg-white", "shadow-sm", "text-primary");
+                btn.classList.add("text-gray-600", "hover:text-gray-900");
+              }
+            });
+            button.classList.remove("text-gray-600", "hover:text-gray-900");
+            button.classList.add("bg-white", "shadow-sm", "text-primary");
+          }
+        });
+      });
+
+      // Search functionality
+      const searchInput = document.querySelector("#search-filters input");
+      searchInput.addEventListener("input", (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        // Add search logic here
+        console.log("Searching for:", searchTerm);
+      });
+    </script>
+  </body>
+</html>

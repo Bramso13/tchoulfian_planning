@@ -1,0 +1,727 @@
+// ============================================================================
+// TCHOULFIAN PLANNING - SCHÉMA OPTIMISÉ
+// ============================================================================
+//
+// Architecture : PostgreSQL + Prisma ORM
+// Approche : Stockage minimal + Calculs côté application
+// Focus : Performance, évolutivité, relations claires
+//
+// Créé par : Mary (Business Analyst)
+// Date : 2025-11-11
+//
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["auth", "public"]
+}
+
+// ============================================================================
+// ÉNUMÉRATIONS
+// ============================================================================
+
+enum ContractType {
+  CDI           // Contrat à Durée Indéterminée
+  CDD           // Contrat à Durée Déterminée
+  INTERIM       // Intérimaire
+  FREELANCE     // Freelance
+  SUBCONTRACTOR // Sous-traitant
+  APPRENTICE    // Apprenti
+
+  @@schema("public")
+}
+
+enum EmployeeStatus {
+  AVAILABLE      // Disponible
+  ON_MISSION     // En mission
+  IN_TRAINING    // En formation ✅ NOUVEAU
+  ON_LEAVE       // En congé
+  SICK_LEAVE     // Arrêt maladie
+  ABSENT         // Absent
+  TERMINATED     // Terminé (licencié/démission)
+
+  @@schema("public")
+}
+
+enum ProjectStatus {
+  DRAFT          // Brouillon
+  PLANNING       // En planification
+  ACTIVE         // En cours / Actif
+  ON_HOLD        // En pause
+  DELAYED        // En retard
+  COMPLETED      // Terminé
+  CANCELLED      // Annulé
+  ARCHIVED       // Archivé
+
+  @@schema("public")
+}
+
+enum ProjectType {
+  RESIDENTIAL    // Construction résidentielle
+  COMMERCIAL     // Construction commerciale
+  INDUSTRIAL     // Construction industrielle
+  INFRASTRUCTURE // Infrastructure publique
+  RENOVATION     // Rénovation
+  MEDICAL        // Construction médicale
+  OTHER          // Autre
+
+  @@schema("public")
+}
+
+enum AssignmentStatus {
+  SCHEDULED      // Planifié
+  CONFIRMED      // Confirmé
+  IN_PROGRESS    // En cours
+  COMPLETED      // Terminé
+  DELAYED        // En retard
+  CANCELLED      // Annulé
+
+  @@schema("public")
+}
+
+enum MilestoneStatus {
+  PENDING        // À venir
+  IN_PROGRESS    // En cours
+  COMPLETED      // Terminé
+  DELAYED        // En retard
+  CANCELLED      // Annulé
+
+  @@schema("public")
+}
+
+enum DocumentCategory {
+  CONTRACT       // Contrat
+  CERTIFICATION  // Certification
+  RESUME         // CV
+  SECURITY       // Sécurité
+  PLANNING       // Planning
+  FINANCE        // Finance
+  TECHNICAL      // Technique
+  REPORT         // Rapport
+  OTHER          // Autre
+
+  @@schema("public")
+}
+
+enum ActivityType {
+  PROJECT_CREATED       // Projet créé
+  PROJECT_UPDATED       // Projet mis à jour
+  PROJECT_STATUS_CHANGED // Statut projet changé
+  EMPLOYEE_ASSIGNED     // Employé assigné
+  EMPLOYEE_UNASSIGNED   // Employé désassigné
+  MILESTONE_COMPLETED   // Jalon terminé
+  DOCUMENT_UPLOADED     // Document ajouté
+  EVALUATION_ADDED      // Évaluation ajoutée
+  ALERT_CREATED         // Alerte créée
+  ALERT_RESOLVED        // Alerte résolue
+  COMMENT_ADDED         // Commentaire ajouté
+  TRAINING_ENROLLED     // Inscription formation
+  TRAINING_COMPLETED    // Formation terminée
+
+  @@schema("public")
+}
+
+enum SkillLevel {
+  BEGINNER           // Débutant
+  INTERMEDIATE       // Intermédiaire
+  ADVANCED           // Avancé
+  EXPERT             // Expert
+
+  @@schema("public")
+}
+
+enum TrainingStatus {
+  ENROLLED           // Inscrit
+  IN_PROGRESS        // En cours
+  COMPLETED          // Terminé
+  CANCELLED          // Annulé
+  FAILED             // Échoué
+
+  @@schema("public")
+}
+
+enum AlertSeverity {
+  LOW                // Faible
+  MEDIUM             // Moyen
+  HIGH               // Élevé
+  CRITICAL           // Critique
+
+  @@schema("public")
+}
+
+
+
+// ============================================================================
+// TABLES PUBLIC - CORE
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// PROFILES (Extension de auth.users - table Supabase de base)
+// ----------------------------------------------------------------------------
+model profiles {
+  id         String    @id @db.Uuid
+  username   String?   @unique
+  full_name  String?
+  avatar_url String?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  user       users     @relation(fields: [id], references: [id], onDelete: Cascade)
+  employee   Employee[]
+
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// DÉPARTEMENTS
+// ----------------------------------------------------------------------------
+model Department {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique
+  description String?   @db.Text
+  code        String?   @unique // Ex: "DTS" pour Direction Travaux Sud
+  managerId   String?   @db.Uuid
+
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employees   Employee[] @relation("DepartmentEmployees")
+  manager     Employee?  @relation("DepartmentManager", fields: [managerId], references: [id], onDelete: SetNull)
+
+  @@index([name])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// EMPLOYÉS ✅ LIÉ À PROFILES
+// ----------------------------------------------------------------------------
+model Employee {
+  id              String           @id @default(uuid()) @db.Uuid
+  profileId       String           @unique @db.Uuid // ✅ Lien vers profiles
+
+  // Informations professionnelles
+  jobTitle        String           // Ex: "Chef de chantier"
+  contractType    ContractType     @default(CDI)
+  status          EmployeeStatus   @default(AVAILABLE)
+  departmentId    String?          @db.Uuid
+
+  // Contact (dupliqué de profile pour accès rapide, optionnel)
+  email           String?          @unique
+  phone           String?
+  address         String?
+  city            String?
+  postalCode      String?
+
+  // Dates
+  hireDate        DateTime?        @db.Date
+  terminationDate DateTime?        @db.Date
+  birthDate       DateTime?        @db.Date
+
+  // Disponibilité
+  availableFrom   DateTime?        @db.Date
+  notes           String?          @db.Text
+
+  // Métadonnées
+  createdAt       DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(6)
+  deletedAt       DateTime?        @db.Timestamptz(6) // Soft delete
+
+  // Relations
+  profile             profiles        @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  department          Department?     @relation("DepartmentEmployees", fields: [departmentId], references: [id], onDelete: SetNull)
+  managedDepartment   Department?     @relation("DepartmentManager")
+
+  assignments         Assignment[]
+  skills              EmployeeSkill[]
+  certifications      EmployeeCertification[]
+  evaluations         Evaluation[]
+  documents           Document[]
+  activities          Activity[]
+  timeEntries         TimeEntry[]
+  trainingEnrollments TrainingEnrollment[]
+  managedProjects     Project[]       // Projets dont il est responsable
+
+  @@index([profileId])
+  @@index([email])
+  @@index([status])
+  @@index([departmentId])
+  @@index([contractType])
+  @@index([deletedAt])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// COMPÉTENCES (RÉFÉRENTIEL)
+// ----------------------------------------------------------------------------
+model Skill {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique
+  description String?   @db.Text
+  category    String?   // Ex: "Maçonnerie", "Électricité", "Plomberie"
+
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employees   EmployeeSkill[]
+
+  @@index([name])
+  @@index([category])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// COMPÉTENCES DES EMPLOYÉS (Table de liaison)
+// ----------------------------------------------------------------------------
+model EmployeeSkill {
+  id          String      @id @default(uuid()) @db.Uuid
+  employeeId  String      @db.Uuid
+  skillId     String      @db.Uuid
+  level       SkillLevel  @default(INTERMEDIATE)
+  yearsExp    Int?        // Années d'expérience
+
+  createdAt   DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employee    Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  skill       Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, skillId])
+  @@index([employeeId])
+  @@index([skillId])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// CERTIFICATIONS DES EMPLOYÉS
+// ----------------------------------------------------------------------------
+model EmployeeCertification {
+  id              String    @id @default(uuid()) @db.Uuid
+  employeeId      String    @db.Uuid
+
+  name            String    // Ex: "Coordination SPS niveau 2"
+  issuer          String?   // Organisme délivrant
+  certNumber      String?   // Numéro de certification
+  issueDate       DateTime? @db.Date
+  expiryDate      DateTime? @db.Date
+  documentUrl     String?   // Lien vers le document
+
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([expiryDate]) // Pour notifier expirations à venir
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// CLIENTS
+// ----------------------------------------------------------------------------
+model Client {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  postalCode  String?
+  notes       String?   @db.Text
+
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  projects    Project[]
+
+  @@index([name])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// PROJETS/CHANTIERS
+// ----------------------------------------------------------------------------
+model Project {
+  id              String        @id @default(uuid()) @db.Uuid
+
+  // Informations générales
+  name            String
+  description     String?       @db.Text
+  type            ProjectType   @default(OTHER)
+  status          ProjectStatus @default(DRAFT)
+
+  // Localisation
+  address         String?
+  city            String?
+  postalCode      String?
+  coordinates     String?       // Format: "lat,lng" pour futures fonctionnalités
+
+  // Client
+  clientId        String?       @db.Uuid
+
+  // Budget
+  budgetTotal     Decimal?      @db.Decimal(15, 2)
+  budgetConsumed  Decimal?      @default(0) @db.Decimal(15, 2)
+
+  // Dates
+  startDate       DateTime?     @db.Date
+  endDate         DateTime?     @db.Date
+  actualEndDate   DateTime?     @db.Date
+
+  // Progression (stockée, mais peut être calculée depuis milestones)
+  progress        Int           @default(0) // 0-100
+
+  // Responsable de projet
+  projectManagerId String?      @db.Uuid
+
+  // Métadonnées
+  createdAt       DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime      @updatedAt @db.Timestamptz(6)
+  deletedAt       DateTime?     @db.Timestamptz(6) // Soft delete
+
+  // Relations
+  client          Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  projectManager  Employee?     @relation(fields: [projectManagerId], references: [id], onDelete: SetNull)
+
+  assignments     Assignment[]
+  milestones      Milestone[]
+  documents       Document[]
+  activities      Activity[]
+  alerts          Alert[]
+  timeEntries     TimeEntry[]
+
+  @@index([name])
+  @@index([status])
+  @@index([type])
+  @@index([clientId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([deletedAt])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// AFFECTATIONS (Employé ↔ Projet ou Formation)
+// ----------------------------------------------------------------------------
+model Assignment {
+  id          String            @id @default(uuid()) @db.Uuid
+
+  employeeId  String            @db.Uuid
+  projectId   String            @db.Uuid
+
+  // Rôle dans l'affectation
+  role        String?           // Ex: "Supervision globale"
+
+  // Dates
+  startDate   DateTime          @db.Date
+  endDate     DateTime?         @db.Date
+
+  // Horaires (optionnel, pour planning journalier)
+  startTime   DateTime?         @db.Time
+  endTime     DateTime?         @db.Time
+
+  // Statut
+  status      AssignmentStatus  @default(SCHEDULED)
+
+  // Heures planifiées
+  plannedHours Decimal?         @db.Decimal(8, 2)
+
+  // Notes/Description
+  notes       String?           @db.Text
+
+  // Métadonnées
+  createdAt   DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime          @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employee    Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project     Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([projectId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([status])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// JALONS/ÉTAPES DE PROJET
+// ----------------------------------------------------------------------------
+model Milestone {
+  id          String          @id @default(uuid()) @db.Uuid
+  projectId   String          @db.Uuid
+
+  title       String
+  description String?         @db.Text
+  dueDate     DateTime?       @db.Date
+  completedAt DateTime?       @db.Timestamptz(6)
+  status      MilestoneStatus @default(PENDING)
+  order       Int             @default(0) // Pour ordonner chronologiquement
+
+  createdAt   DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([dueDate])
+  @@index([status])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// SESSIONS DE FORMATION ✅ NOUVEAU
+// ----------------------------------------------------------------------------
+model TrainingSession {
+  id              String    @id @default(uuid()) @db.Uuid
+
+  name            String
+  description     String?   @db.Text
+  location        String?   // Lieu de la formation
+  provider        String?   // Organisme formateur
+
+  startDate       DateTime  @db.Date
+  endDate         DateTime  @db.Date
+  maxParticipants Int?      // Nombre max de participants
+
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  enrollments     TrainingEnrollment[]
+
+  @@index([startDate])
+  @@index([endDate])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// INSCRIPTIONS AUX FORMATIONS ✅ NOUVEAU
+// ----------------------------------------------------------------------------
+model TrainingEnrollment {
+  id                String          @id @default(uuid()) @db.Uuid
+
+  employeeId        String          @db.Uuid
+  trainingSessionId String          @db.Uuid
+
+  status            TrainingStatus  @default(ENROLLED)
+  enrolledAt        DateTime        @default(now()) @db.Timestamptz(6)
+  completedAt       DateTime?       @db.Timestamptz(6)
+  certificateUrl    String?         // Certificat obtenu
+
+  createdAt         DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt         DateTime        @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employee          Employee        @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  trainingSession   TrainingSession @relation(fields: [trainingSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, trainingSessionId])
+  @@index([employeeId])
+  @@index([trainingSessionId])
+  @@index([status])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// DOCUMENTS
+// ----------------------------------------------------------------------------
+model Document {
+  id          String            @id @default(uuid()) @db.Uuid
+
+  name        String
+  description String?           @db.Text
+  category    DocumentCategory  @default(OTHER)
+  fileUrl     String            // URL Supabase Storage ou S3
+  fileSize    Int?              // En bytes
+  mimeType    String?
+
+  // Relations (un document peut appartenir à un employé OU un projet)
+  employeeId  String?           @db.Uuid
+  projectId   String?           @db.Uuid
+
+  // Auteur
+  uploadedBy  String?           @db.Uuid // User ID qui a uploadé
+
+  createdAt   DateTime          @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime          @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employee    Employee?         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project     Project?          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([projectId])
+  @@index([category])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// ÉVALUATIONS
+// ----------------------------------------------------------------------------
+model Evaluation {
+  id              String    @id @default(uuid()) @db.Uuid
+
+  employeeId      String    @db.Uuid
+  projectId       String?   @db.Uuid // Évaluation liée à un projet (optionnel)
+
+  title           String
+  content         String    @db.Text
+  score           Decimal?  @db.Decimal(3, 2) // Ex: 4.80 sur 5
+
+  // Évaluateur
+  evaluatorId     String?   @db.Uuid
+  evaluatorName   String?   // Si évaluateur externe
+
+  evaluationDate  DateTime  @default(now()) @db.Date
+
+  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([projectId])
+  @@index([evaluationDate])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// ACTIVITÉS / JOURNAL D'AUDIT
+// ----------------------------------------------------------------------------
+model Activity {
+  id          String       @id @default(uuid()) @db.Uuid
+
+  type        ActivityType
+  title       String
+  description String?      @db.Text
+
+  // Relations (peut concerner employé ET/OU projet)
+  employeeId  String?      @db.Uuid
+  projectId   String?      @db.Uuid
+
+  // Auteur de l'action
+  userId      String?      @db.Uuid
+
+  // Métadonnées JSON supplémentaires
+  metadata    Json?
+
+  createdAt   DateTime     @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  employee    Employee?    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project     Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([projectId])
+  @@index([type])
+  @@index([createdAt(sort: Desc)]) // Pour feed d'activité
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// ALERTES / POINTS DE VIGILANCE
+// ----------------------------------------------------------------------------
+model Alert {
+  id          String        @id @default(uuid()) @db.Uuid
+  projectId   String        @db.Uuid
+
+  title       String
+  description String        @db.Text
+  severity    AlertSeverity @default(MEDIUM)
+
+  isResolved  Boolean       @default(false)
+  resolvedAt  DateTime?     @db.Timestamptz(6)
+  resolvedBy  String?       @db.Uuid
+
+  createdAt   DateTime      @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([isResolved])
+  @@index([severity])
+  @@schema("public")
+}
+
+// ----------------------------------------------------------------------------
+// SUIVI DU TEMPS (TIME TRACKING)
+// Pour calculer heures réelles et budget consommé
+// ----------------------------------------------------------------------------
+model TimeEntry {
+  id          String    @id @default(uuid()) @db.Uuid
+
+  employeeId  String    @db.Uuid
+  projectId   String    @db.Uuid
+
+  date        DateTime  @db.Date
+  startTime   DateTime? @db.Time
+  endTime     DateTime? @db.Time
+  duration    Decimal   @db.Decimal(8, 2) // Heures (ex: 8.5)
+
+  description String?   @db.Text
+  billable    Boolean   @default(true) // Facturable ou non
+
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([projectId])
+  @@index([date])
+  @@schema("public")
+}
+
+// ============================================================================
+// NOTES IMPORTANTES POUR LA MIGRATION
+// ============================================================================
+
+// 1. VUES MATÉRIALISÉES À CRÉER (via migration SQL)
+//    - view_employee_statistics (heures, projets, évaluations)
+//    - view_project_statistics (effectif, budget, alertes)
+//    - view_resource_utilization (occupation par compétence)
+//    - view_upcoming_deadlines (jalons et formations à venir)
+
+// 2. TRIGGERS À CRÉER
+//    - Mettre à jour Project.progress automatiquement basé sur Milestones
+//    - Mettre à jour Employee.status = IN_TRAINING si training actif
+//    - Logger activités automatiquement sur certains événements
+
+// 3. ROW LEVEL SECURITY (RLS) Supabase
+//    - Configurer les policies pour sécuriser l'accès aux données
+//    - Les employés ne voient que leurs propres données
+//    - Les managers voient leur département
+//    - Les admins voient tout
+
+// 4. FULL-TEXT SEARCH
+//    - Créer index GIN sur Employee (nom), Project (nom), Client (nom)
+//    - Pour recherche performante
+
+// 5. SEED DATA
+//    - Créer des skills de base (Maçonnerie, Électricité, etc.)
+//    - Créer des départements types
+//    - Données de démo pour testing
+
+// ============================================================================
+// FIN DU SCHÉMA
+// ============================================================================
