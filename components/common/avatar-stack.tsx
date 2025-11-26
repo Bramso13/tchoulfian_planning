@@ -31,3 +31,5 @@ export function AvatarStack({ avatars, maxVisible = 2 }: AvatarStackProps) {
     </div>
   );
 }
+
+
