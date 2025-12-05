@@ -24,7 +24,8 @@ import { useDatabase } from "@/app/protected/database-context";
 export default function EmployeDetailPage() {
   const params = useParams();
   const employeeId = params.id as string;
-  const { employees, assignments, fetchEmployees, fetchAssignments } = useDatabase();
+  const { employees, assignments, fetchEmployees, fetchAssignments } =
+    useDatabase();
 
   useEffect(() => {
     fetchEmployees();
@@ -86,7 +87,10 @@ export default function EmployeDetailPage() {
         stats={[
           {
             value: employee.createdAt
-              ? `${Math.floor((Date.now() - new Date(employee.createdAt).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans`
+              ? `${Math.floor(
+                  (Date.now() - new Date(employee.createdAt).getTime()) /
+                    (1000 * 60 * 60 * 24 * 365)
+                )} ans`
               : "N/A",
             label: "Ancienneté",
           },
@@ -201,10 +205,12 @@ export default function EmployeDetailPage() {
                       <p className="text-sm text-slate-500">
                         Depuis{" "}
                         {currentAssignment.startDate
-                          ? new Date(currentAssignment.startDate).toLocaleDateString(
-                              "fr-FR",
-                              { month: "short", year: "numeric" }
-                            )
+                          ? new Date(
+                              currentAssignment.startDate
+                            ).toLocaleDateString("fr-FR", {
+                              month: "short",
+                              year: "numeric",
+                            })
                           : "N/A"}
                       </p>
                     </div>
@@ -256,7 +262,21 @@ export default function EmployeDetailPage() {
                         {assignment.project?.name || "Projet sans nom"}
                       </p>
                       <StatusBadge
-                        label={`${assignment.startDate ? new Date(assignment.startDate).toLocaleDateString("fr-FR", { month: "short", year: "numeric" }) : "?"} → ${assignment.endDate ? new Date(assignment.endDate).toLocaleDateString("fr-FR", { month: "short", year: "numeric" }) : "En cours"}`}
+                        label={`${
+                          assignment.startDate
+                            ? new Date(assignment.startDate).toLocaleDateString(
+                                "fr-FR",
+                                { month: "short", year: "numeric" }
+                              )
+                            : "?"
+                        } → ${
+                          assignment.endDate
+                            ? new Date(assignment.endDate).toLocaleDateString(
+                                "fr-FR",
+                                { month: "short", year: "numeric" }
+                              )
+                            : "En cours"
+                        }`}
                         tone="slate"
                         dot={false}
                       />
@@ -303,25 +323,30 @@ export default function EmployeDetailPage() {
                 </div>
               </div>
               <div className="space-y-3">
-                {employee.certifications && employee.certifications.length > 0 ? (
-                  employee.certifications.map((employeeCertification, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-3"
-                    >
-                      <Award className="h-5 w-5 text-amber-500" />
-                      <div>
-                        <p className="font-semibold text-slate-900">
-                          {employeeCertification.certificationName || "Certification"}
-                        </p>
-                        {employeeCertification.issueDate && (
-                          <p className="text-xs text-slate-500">
-                            {new Date(employeeCertification.issueDate).getFullYear()}
+                {employee.certifications &&
+                employee.certifications.length > 0 ? (
+                  employee.certifications.map(
+                    (employeeCertification, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50/60 p-3"
+                      >
+                        <Award className="h-5 w-5 text-amber-500" />
+                        <div>
+                          <p className="font-semibold text-slate-900">
+                            {employeeCertification.name || "Certification"}
                           </p>
-                        )}
+                          {employeeCertification.issueDate && (
+                            <p className="text-xs text-slate-500">
+                              {new Date(
+                                employeeCertification.issueDate
+                              ).getFullYear()}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    )
+                  )
                 ) : (
                   <div className="py-4 text-center text-sm text-slate-500">
                     Aucune certification enregistrée
