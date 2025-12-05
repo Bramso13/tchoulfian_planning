@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export async function PATCH(
   request: Request,
@@ -12,29 +12,70 @@ export async function PATCH(
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
-    const assignment = await prisma.assignment.update({
-      where: { id },
-      data: {
-        role: body.role,
-        startDate: body.startDate ? new Date(body.startDate) : undefined,
-        endDate: body.endDate ? new Date(body.endDate) : null,
-        startTime: body.startTime ? new Date(body.startTime) : null,
-        endTime: body.endTime ? new Date(body.endTime) : null,
-        status: body.status,
-        plannedHours: body.plannedHours,
-        notes: body.notes,
-      },
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-        project: true,
-      },
-    });
+    const supabase = await createClient();
 
-    return NextResponse.json(assignment);
+    const updateData: Record<string, unknown> = {};
+    if (body.role !== undefined) updateData.role = body.role;
+    if (body.startDate !== undefined) updateData.startDate = body.startDate;
+    if (body.endDate !== undefined) updateData.endDate = body.endDate || null;
+    if (body.startTime !== undefined)
+      updateData.startTime = body.startTime || null;
+    if (body.endTime !== undefined) updateData.endTime = body.endTime || null;
+    if (body.status !== undefined) updateData.status = body.status;
+    if (body.plannedHours !== undefined)
+      updateData.plannedHours = body.plannedHours;
+    if (body.notes !== undefined) updateData.notes = body.notes;
+    updateData.updatedAt = new Date().toISOString();
+
+    const { data: assignment, error: updateError } = await supabase
+      .from("Assignment")
+      .update(updateData)
+      .eq("id", id)
+      .select("*")
+      .single();
+
+    if (updateError) throw updateError;
+
+    // Enrichir avec les relations
+    let employee = null;
+    if (assignment.employeeId) {
+      const { data: empData } = await supabase
+        .from("Employee")
+        .select("*")
+        .eq("id", assignment.employeeId)
+        .single();
+
+      if (empData) {
+        let profile = null;
+        if (empData.profileId) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", empData.profileId)
+            .single();
+          profile = profileData;
+        }
+        employee = { ...empData, profile };
+      }
+    }
+
+    let project = null;
+    if (assignment.projectId) {
+      const { data } = await supabase
+        .from("Project")
+        .select("*")
+        .eq("id", assignment.projectId)
+        .single();
+      project = data;
+    }
+
+    const enrichedAssignment = {
+      ...assignment,
+      employee,
+      project,
+    };
+
+    return NextResponse.json(enrichedAssignment);
   } catch (error) {
     console.error("Erreur lors de la mise à jour de l'affectation:", error);
     return NextResponse.json(
@@ -50,10 +91,14 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    const supabase = await createClient();
 
-    await prisma.assignment.delete({
-      where: { id },
-    });
+    const { error: deleteError } = await supabase
+      .from("Assignment")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {

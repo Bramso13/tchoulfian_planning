@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export async function PATCH(
   request: Request,
@@ -8,25 +8,63 @@ export async function PATCH(
   try {
     const body = await request.json();
     const { id } = params;
+    const supabase = await createClient();
 
-    const enrollment = await prisma.trainingEnrollment.update({
-      where: { id },
-      data: {
-        status: body.status,
-        completedAt: body.completedAt ? new Date(body.completedAt) : undefined,
-        certificateUrl: body.certificateUrl,
-      },
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-        trainingSession: true,
-      },
-    });
+    const updateData: Record<string, unknown> = {};
+    if (body.status !== undefined) updateData.status = body.status;
+    if (body.completedAt !== undefined) updateData.completedAt = body.completedAt || null;
+    if (body.certificateUrl !== undefined) updateData.certificateUrl = body.certificateUrl;
+    updateData.updatedAt = new Date().toISOString();
 
-    return NextResponse.json(enrollment);
+    const { data: enrollment, error: updateError } = await supabase
+      .from("TrainingEnrollment")
+      .update(updateData)
+      .eq("id", id)
+      .select("*")
+      .single();
+
+    if (updateError) throw updateError;
+
+    // Enrichir avec les relations
+    let employee = null;
+    if (enrollment.employeeId) {
+      const { data: empData } = await supabase
+        .from("Employee")
+        .select("*")
+        .eq("id", enrollment.employeeId)
+        .single();
+      
+      if (empData) {
+        let profile = null;
+        if (empData.profileId) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", empData.profileId)
+            .single();
+          profile = profileData;
+        }
+        employee = { ...empData, profile };
+      }
+    }
+
+    let trainingSession = null;
+    if (enrollment.trainingSessionId) {
+      const { data } = await supabase
+        .from("TrainingSession")
+        .select("*")
+        .eq("id", enrollment.trainingSessionId)
+        .single();
+      trainingSession = data;
+    }
+
+    const enrichedEnrollment = {
+      ...enrollment,
+      employee,
+      trainingSession,
+    };
+
+    return NextResponse.json(enrichedEnrollment);
   } catch (error) {
     console.error("Erreur lors de la mise à jour de l'inscription:", error);
     return NextResponse.json(
@@ -42,10 +80,14 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
+    const supabase = await createClient();
 
-    await prisma.trainingEnrollment.delete({
-      where: { id },
-    });
+    const { error: deleteError } = await supabase
+      .from("TrainingEnrollment")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {
