@@ -136,3 +136,4 @@ En cas de problème, vérifiez :
 3. Les logs dans le dashboard Supabase > Logs
 
 
+
