@@ -1,30 +1,48 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const body = await request.json();
     const { id } = params;
+    const supabase = await createClient();
 
-    const milestone = await prisma.milestone.update({
-      where: { id },
-      data: {
-        title: body.title,
-        description: body.description,
-        dueDate: body.dueDate ? new Date(body.dueDate) : null,
-        completedAt: body.completedAt ? new Date(body.completedAt) : null,
-        status: body.status,
-        order: body.order,
-      },
-      include: {
-        project: true,
-      },
-    });
+    const updateData: Record<string, unknown> = {};
+    if (body.title !== undefined) updateData.title = body.title;
+    if (body.description !== undefined) updateData.description = body.description;
+    if (body.dueDate !== undefined) updateData.dueDate = body.dueDate || null;
+    if (body.completedAt !== undefined) updateData.completedAt = body.completedAt || null;
+    if (body.status !== undefined) updateData.status = body.status;
+    if (body.order !== undefined) updateData.order = body.order;
+    updateData.updatedAt = new Date().toISOString();
 
-    return NextResponse.json(milestone);
+    const { data: milestone, error: updateError } = await supabase
+      .from("Milestone")
+      .update(updateData)
+      .eq("id", id)
+      .select("*")
+      .single();
+
+    if (updateError) throw updateError;
+
+    // Enrichir avec le projet
+    let project = null;
+    if (milestone.projectId) {
+      const { data } = await supabase
+        .from("Project")
+        .select("*")
+        .eq("id", milestone.projectId)
+        .single();
+      project = data;
+    }
+
+    const enrichedMilestone = {
+      ...milestone,
+      project,
+    };
+
+    return NextResponse.json(enrichedMilestone);
   } catch (error) {
     console.error("Erreur lors de la mise à jour du jalon:", error);
     return NextResponse.json(
@@ -34,16 +52,18 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const { id } = params;
+    const supabase = await createClient();
 
-    await prisma.milestone.delete({
-      where: { id },
-    });
+    const { error: deleteError } = await supabase
+      .from("Milestone")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) throw deleteError;
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {

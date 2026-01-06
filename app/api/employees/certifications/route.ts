@@ -1,22 +1,50 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
-    const certifications = await prisma.employeeCertification.findMany({
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const supabase = await createClient();
 
-    return NextResponse.json(certifications);
+    const { data: certifications, error: certificationsError } = await supabase
+      .from("EmployeeCertification")
+      .select("*")
+      .order("createdAt", { ascending: false });
+
+    if (certificationsError) throw certificationsError;
+
+    // Enrichir avec les employés
+    const enrichedCertifications = await Promise.all(
+      (certifications || []).map(async (certification) => {
+        let employee = null;
+        if (certification.employeeId) {
+          const { data: empData } = await supabase
+            .from("Employee")
+            .select("*")
+            .eq("id", certification.employeeId)
+            .single();
+          
+          if (empData) {
+            let profile = null;
+            if (empData.profileId) {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", empData.profileId)
+                .single();
+              profile = profileData;
+            }
+            employee = { ...empData, profile };
+          }
+        }
+
+        return {
+          ...certification,
+          employee,
+        };
+      })
+    );
+
+    return NextResponse.json(enrichedCertifications);
   } catch (error) {
     console.error("Erreur lors de la récupération des certifications:", error);
     return NextResponse.json(
@@ -29,27 +57,55 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const supabase = await createClient();
 
-    const certification = await prisma.employeeCertification.create({
-      data: {
-        employeeId: body.employeeId,
-        name: body.name,
-        issuer: body.issuer,
-        certNumber: body.certNumber,
-        issueDate: body.issueDate ? new Date(body.issueDate) : null,
-        expiryDate: body.expiryDate ? new Date(body.expiryDate) : null,
-        documentUrl: body.documentUrl,
-      },
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-      },
-    });
+    const certificationData = {
+      employeeId: body.employeeId,
+      name: body.name,
+      issuer: body.issuer || null,
+      certNumber: body.certNumber || null,
+      issueDate: body.issueDate || null,
+      expiryDate: body.expiryDate || null,
+      documentUrl: body.documentUrl || null,
+    };
 
-    return NextResponse.json(certification, { status: 201 });
+    const { data: certification, error: createError } = await supabase
+      .from("EmployeeCertification")
+      .insert(certificationData)
+      .select("*")
+      .single();
+
+    if (createError) throw createError;
+
+    // Enrichir avec l'employé
+    let employee = null;
+    if (certification.employeeId) {
+      const { data: empData } = await supabase
+        .from("Employee")
+        .select("*")
+        .eq("id", certification.employeeId)
+        .single();
+      
+      if (empData) {
+        let profile = null;
+        if (empData.profileId) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", empData.profileId)
+            .single();
+          profile = profileData;
+        }
+        employee = { ...empData, profile };
+      }
+    }
+
+    const enrichedCertification = {
+      ...certification,
+      employee,
+    };
+
+    return NextResponse.json(enrichedCertification, { status: 201 });
   } catch (error) {
     console.error("Erreur lors de la création de la certification:", error);
     return NextResponse.json(

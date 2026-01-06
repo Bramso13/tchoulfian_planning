@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-
-import { prisma } from "@/lib/prisma";
-import { Role } from "@prisma/client";
+import { createClient } from "@/lib/supabase/server";
+import { Role } from "@/lib/database";
 
 type CreateProfileBody = {
   id?: string;
@@ -23,22 +22,52 @@ export async function POST(request: Request) {
       );
     }
 
-    const profile = await prisma.profiles.upsert({
-      where: { id },
-      update: {
-        username: username ?? undefined,
-        full_name: fullName ?? undefined,
-        avatar_url: avatarUrl ?? undefined,
-        updated_at: new Date(),
-        role: role ?? undefined,
-      },
-      create: {
-        id,
-        username: username ?? null,
-        full_name: fullName ?? null,
-        avatar_url: avatarUrl ?? null,
-      },
-    });
+    const supabase = await createClient();
+
+    // Vérifier si le profil existe déjà
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    let profile;
+    if (existingProfile) {
+      // Mettre à jour le profil existant
+      const updateData: Record<string, unknown> = {
+        updated_at: new Date().toISOString(),
+      };
+      if (username !== undefined) updateData.username = username;
+      if (fullName !== undefined) updateData.full_name = fullName;
+      if (avatarUrl !== undefined) updateData.avatar_url = avatarUrl;
+      if (role !== undefined) updateData.role = role;
+
+      const { data: updatedProfile, error: updateError } = await supabase
+        .from("profiles")
+        .update(updateData)
+        .eq("id", id)
+        .select("*")
+        .single();
+
+      if (updateError) throw updateError;
+      profile = updatedProfile;
+    } else {
+      // Créer un nouveau profil
+      const { data: newProfile, error: createError } = await supabase
+        .from("profiles")
+        .insert({
+          id,
+          username: username ?? null,
+          full_name: fullName ?? null,
+          avatar_url: avatarUrl ?? null,
+          role: role ?? null,
+        })
+        .select("*")
+        .single();
+
+      if (createError) throw createError;
+      profile = newProfile;
+    }
 
     return NextResponse.json({ profile }, { status: 201 });
   } catch (error) {

@@ -1,23 +1,63 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
-    const enrollments = await prisma.trainingEnrollment.findMany({
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-        trainingSession: true,
-      },
-      orderBy: {
-        enrolledAt: "desc",
-      },
-    });
+    const supabase = await createClient();
 
-    return NextResponse.json(enrollments);
+    const { data: enrollments, error: enrollmentsError } = await supabase
+      .from("TrainingEnrollment")
+      .select("*")
+      .order("enrolledAt", { ascending: false });
+
+    if (enrollmentsError) throw enrollmentsError;
+
+    // Enrichir avec les relations
+    const enrichedEnrollments = await Promise.all(
+      (enrollments || []).map(async (enrollment) => {
+        // Employee avec profile
+        let employee = null;
+        if (enrollment.employeeId) {
+          const { data: empData } = await supabase
+            .from("Employee")
+            .select("*")
+            .eq("id", enrollment.employeeId)
+            .single();
+          
+          if (empData) {
+            let profile = null;
+            if (empData.profileId) {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", empData.profileId)
+                .single();
+              profile = profileData;
+            }
+            employee = { ...empData, profile };
+          }
+        }
+
+        // TrainingSession
+        let trainingSession = null;
+        if (enrollment.trainingSessionId) {
+          const { data } = await supabase
+            .from("TrainingSession")
+            .select("*")
+            .eq("id", enrollment.trainingSessionId)
+            .single();
+          trainingSession = data;
+        }
+
+        return {
+          ...enrollment,
+          employee,
+          trainingSession,
+        };
+      })
+    );
+
+    return NextResponse.json(enrichedEnrollments);
   } catch (error) {
     console.error("Erreur lors de la récupération des inscriptions:", error);
     return NextResponse.json(
@@ -30,25 +70,63 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const supabase = await createClient();
 
-    const enrollment = await prisma.trainingEnrollment.create({
-      data: {
-        employeeId: body.employeeId,
-        trainingSessionId: body.trainingSessionId,
-        status: body.status || "ENROLLED",
-        certificateUrl: body.certificateUrl,
-      },
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-        trainingSession: true,
-      },
-    });
+    const enrollmentData = {
+      employeeId: body.employeeId,
+      trainingSessionId: body.trainingSessionId,
+      status: body.status || "ENROLLED",
+      certificateUrl: body.certificateUrl || null,
+    };
 
-    return NextResponse.json(enrollment, { status: 201 });
+    const { data: enrollment, error: createError } = await supabase
+      .from("TrainingEnrollment")
+      .insert(enrollmentData)
+      .select("*")
+      .single();
+
+    if (createError) throw createError;
+
+    // Enrichir avec les relations
+    let employee = null;
+    if (enrollment.employeeId) {
+      const { data: empData } = await supabase
+        .from("Employee")
+        .select("*")
+        .eq("id", enrollment.employeeId)
+        .single();
+      
+      if (empData) {
+        let profile = null;
+        if (empData.profileId) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", empData.profileId)
+            .single();
+          profile = profileData;
+        }
+        employee = { ...empData, profile };
+      }
+    }
+
+    let trainingSession = null;
+    if (enrollment.trainingSessionId) {
+      const { data } = await supabase
+        .from("TrainingSession")
+        .select("*")
+        .eq("id", enrollment.trainingSessionId)
+        .single();
+      trainingSession = data;
+    }
+
+    const enrichedEnrollment = {
+      ...enrollment,
+      employee,
+      trainingSession,
+    };
+
+    return NextResponse.json(enrichedEnrollment, { status: 201 });
   } catch (error) {
     console.error("Erreur lors de la création de l'inscription:", error);
     return NextResponse.json(

@@ -1,23 +1,63 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
-    const assignments = await prisma.assignment.findMany({
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-        project: true,
-      },
-      orderBy: {
-        startDate: "asc",
-      },
-    });
+    const supabase = await createClient();
 
-    return NextResponse.json(assignments);
+    const { data: assignments, error: assignmentsError } = await supabase
+      .from("Assignment")
+      .select("*")
+      .order("startDate", { ascending: true });
+
+    if (assignmentsError) throw assignmentsError;
+
+    // Enrichir avec les relations
+    const enrichedAssignments = await Promise.all(
+      (assignments || []).map(async (assignment) => {
+        // Employee avec profile
+        let employee = null;
+        if (assignment.employeeId) {
+          const { data: empData } = await supabase
+            .from("Employee")
+            .select("*")
+            .eq("id", assignment.employeeId)
+            .single();
+          
+          if (empData) {
+            let profile = null;
+            if (empData.profileId) {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", empData.profileId)
+                .single();
+              profile = profileData;
+            }
+            employee = { ...empData, profile };
+          }
+        }
+
+        // Project
+        let project = null;
+        if (assignment.projectId) {
+          const { data } = await supabase
+            .from("Project")
+            .select("*")
+            .eq("id", assignment.projectId)
+            .single();
+          project = data;
+        }
+
+        return {
+          ...assignment,
+          employee,
+          project,
+        };
+      })
+    );
+
+    return NextResponse.json(enrichedAssignments);
   } catch (error) {
     console.error("Erreur lors de la récupération des affectations:", error);
     return NextResponse.json(
@@ -30,31 +70,69 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const supabase = await createClient();
 
-    const assignment = await prisma.assignment.create({
-      data: {
-        employeeId: body.employeeId,
-        projectId: body.projectId,
-        role: body.role,
-        startDate: new Date(body.startDate),
-        endDate: body.endDate ? new Date(body.endDate) : null,
-        startTime: body.startTime ? new Date(body.startTime) : null,
-        endTime: body.endTime ? new Date(body.endTime) : null,
-        status: body.status,
-        plannedHours: body.plannedHours,
-        notes: body.notes,
-      },
-      include: {
-        employee: {
-          include: {
-            profile: true,
-          },
-        },
-        project: true,
-      },
-    });
+    const assignmentData = {
+      employeeId: body.employeeId,
+      projectId: body.projectId,
+      role: body.role || null,
+      startDate: body.startDate,
+      endDate: body.endDate || null,
+      startTime: body.startTime || null,
+      endTime: body.endTime || null,
+      status: body.status,
+      plannedHours: body.plannedHours || null,
+      notes: body.notes || null,
+    };
 
-    return NextResponse.json(assignment, { status: 201 });
+    const { data: assignment, error: createError } = await supabase
+      .from("Assignment")
+      .insert(assignmentData)
+      .select("*")
+      .single();
+
+    if (createError) throw createError;
+
+    // Enrichir avec les relations
+    let employee = null;
+    if (assignment.employeeId) {
+      const { data: empData } = await supabase
+        .from("Employee")
+        .select("*")
+        .eq("id", assignment.employeeId)
+        .single();
+      
+      if (empData) {
+        let profile = null;
+        if (empData.profileId) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", empData.profileId)
+            .single();
+          profile = profileData;
+        }
+        employee = { ...empData, profile };
+      }
+    }
+
+    let project = null;
+    if (assignment.projectId) {
+      const { data } = await supabase
+        .from("Project")
+        .select("*")
+        .eq("id", assignment.projectId)
+        .single();
+      project = data;
+    }
+
+    const enrichedAssignment = {
+      ...assignment,
+      employee,
+      project,
+    };
+
+    return NextResponse.json(enrichedAssignment, { status: 201 });
   } catch (error) {
     console.error("Erreur lors de la création de l'affectation:", error);
     return NextResponse.json(

@@ -40,3 +40,4 @@ export function TabList({ tabs, current, onSelect }: TabListProps) {
 
 
 
+

@@ -1,128 +1,126 @@
-import { Prisma } from '@prisma/client';
-
 // ============================================================================
 // ENUMÉRATIONS (schéma public)
 // ============================================================================
 
 export enum ContractType {
-  CDI = 'CDI',
-  CDD = 'CDD',
-  INTERIM = 'INTERIM',
-  FREELANCE = 'FREELANCE',
-  SUBCONTRACTOR = 'SUBCONTRACTOR',
-  APPRENTICE = 'APPRENTICE',
+  CDI = "CDI",
+  CDD = "CDD",
+  INTERIM = "INTERIM",
+  FREELANCE = "FREELANCE",
+  SUBCONTRACTOR = "SUBCONTRACTOR",
+  APPRENTICE = "APPRENTICE",
 }
 
 export enum EmployeeStatus {
-  AVAILABLE = 'AVAILABLE',
-  ON_MISSION = 'ON_MISSION',
-  IN_TRAINING = 'IN_TRAINING',
-  ON_LEAVE = 'ON_LEAVE',
-  SICK_LEAVE = 'SICK_LEAVE',
-  ABSENT = 'ABSENT',
-  TERMINATED = 'TERMINATED',
+  AVAILABLE = "AVAILABLE",
+  ON_MISSION = "ON_MISSION",
+  IN_TRAINING = "IN_TRAINING",
+  ON_LEAVE = "ON_LEAVE",
+  SICK_LEAVE = "SICK_LEAVE",
+  ABSENT = "ABSENT",
+  TERMINATED = "TERMINATED",
 }
 
 export enum ProjectStatus {
-  DRAFT = 'DRAFT',
-  PLANNING = 'PLANNING',
-  ACTIVE = 'ACTIVE',
-  ON_HOLD = 'ON_HOLD',
-  DELAYED = 'DELAYED',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-  ARCHIVED = 'ARCHIVED',
+  DRAFT = "DRAFT",
+  PLANNING = "PLANNING",
+  ACTIVE = "ACTIVE",
+  ON_HOLD = "ON_HOLD",
+  DELAYED = "DELAYED",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  ARCHIVED = "ARCHIVED",
 }
 
 export enum ProjectType {
-  RESIDENTIAL = 'RESIDENTIAL',
-  COMMERCIAL = 'COMMERCIAL',
-  INDUSTRIAL = 'INDUSTRIAL',
-  INFRASTRUCTURE = 'INFRASTRUCTURE',
-  RENOVATION = 'RENOVATION',
-  MEDICAL = 'MEDICAL',
-  OTHER = 'OTHER',
+  RESIDENTIAL = "RESIDENTIAL",
+  COMMERCIAL = "COMMERCIAL",
+  INDUSTRIAL = "INDUSTRIAL",
+  INFRASTRUCTURE = "INFRASTRUCTURE",
+  RENOVATION = "RENOVATION",
+  MEDICAL = "MEDICAL",
+  OTHER = "OTHER",
 }
 
 export enum AssignmentStatus {
-  SCHEDULED = 'SCHEDULED',
-  CONFIRMED = 'CONFIRMED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  DELAYED = 'DELAYED',
-  CANCELLED = 'CANCELLED',
+  SCHEDULED = "SCHEDULED",
+  CONFIRMED = "CONFIRMED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  DELAYED = "DELAYED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum MilestoneStatus {
-  PENDING = 'PENDING',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  DELAYED = 'DELAYED',
-  CANCELLED = 'CANCELLED',
+  PENDING = "PENDING",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  DELAYED = "DELAYED",
+  CANCELLED = "CANCELLED",
 }
 
 export enum DocumentCategory {
-  CONTRACT = 'CONTRACT',
-  CERTIFICATION = 'CERTIFICATION',
-  RESUME = 'RESUME',
-  SECURITY = 'SECURITY',
-  PLANNING = 'PLANNING',
-  FINANCE = 'FINANCE',
-  TECHNICAL = 'TECHNICAL',
-  REPORT = 'REPORT',
-  OTHER = 'OTHER',
+  CONTRACT = "CONTRACT",
+  CERTIFICATION = "CERTIFICATION",
+  RESUME = "RESUME",
+  SECURITY = "SECURITY",
+  PLANNING = "PLANNING",
+  FINANCE = "FINANCE",
+  TECHNICAL = "TECHNICAL",
+  REPORT = "REPORT",
+  OTHER = "OTHER",
 }
 
 export enum ActivityType {
-  PROJECT_CREATED = 'PROJECT_CREATED',
-  PROJECT_UPDATED = 'PROJECT_UPDATED',
-  PROJECT_STATUS_CHANGED = 'PROJECT_STATUS_CHANGED',
-  EMPLOYEE_ASSIGNED = 'EMPLOYEE_ASSIGNED',
-  EMPLOYEE_UNASSIGNED = 'EMPLOYEE_UNASSIGNED',
-  MILESTONE_COMPLETED = 'MILESTONE_COMPLETED',
-  DOCUMENT_UPLOADED = 'DOCUMENT_UPLOADED',
-  EVALUATION_ADDED = 'EVALUATION_ADDED',
-  ALERT_CREATED = 'ALERT_CREATED',
-  ALERT_RESOLVED = 'ALERT_RESOLVED',
-  COMMENT_ADDED = 'COMMENT_ADDED',
-  TRAINING_ENROLLED = 'TRAINING_ENROLLED',
-  TRAINING_COMPLETED = 'TRAINING_COMPLETED',
+  PROJECT_CREATED = "PROJECT_CREATED",
+  PROJECT_UPDATED = "PROJECT_UPDATED",
+  PROJECT_STATUS_CHANGED = "PROJECT_STATUS_CHANGED",
+  EMPLOYEE_ASSIGNED = "EMPLOYEE_ASSIGNED",
+  EMPLOYEE_UNASSIGNED = "EMPLOYEE_UNASSIGNED",
+  MILESTONE_COMPLETED = "MILESTONE_COMPLETED",
+  DOCUMENT_UPLOADED = "DOCUMENT_UPLOADED",
+  EVALUATION_ADDED = "EVALUATION_ADDED",
+  ALERT_CREATED = "ALERT_CREATED",
+  ALERT_RESOLVED = "ALERT_RESOLVED",
+  COMMENT_ADDED = "COMMENT_ADDED",
+  TRAINING_ENROLLED = "TRAINING_ENROLLED",
+  TRAINING_COMPLETED = "TRAINING_COMPLETED",
 }
 
 export enum SkillLevel {
-  BEGINNER = 'BEGINNER',
-  INTERMEDIATE = 'INTERMEDIATE',
-  ADVANCED = 'ADVANCED',
-  EXPERT = 'EXPERT',
+  BEGINNER = "BEGINNER",
+  INTERMEDIATE = "INTERMEDIATE",
+  ADVANCED = "ADVANCED",
+  EXPERT = "EXPERT",
 }
 
 export enum TrainingStatus {
-  ENROLLED = 'ENROLLED',
-  IN_PROGRESS = 'IN_PROGRESS',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-  FAILED = 'FAILED',
+  ENROLLED = "ENROLLED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+  FAILED = "FAILED",
 }
 
 export enum AlertSeverity {
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-  HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL',
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH",
+  CRITICAL = "CRITICAL",
 }
 
 export enum Role {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
-  MANAGER = 'MANAGER',
-  SUPER_ADMIN = 'SUPER_ADMIN',
+  USER = "USER",
+  ADMIN = "ADMIN",
+  MANAGER = "MANAGER",
+  SUPER_ADMIN = "SUPER_ADMIN",
 }
 
 // ============================================================================
 // TYPES UTILITAIRES
 // ============================================================================
 
-export type JsonValue = Prisma.JsonValue;
+export type JsonValue = any;
 
 // ============================================================================
 // MODÈLES (schéma public)
@@ -250,8 +248,8 @@ export interface Project {
   postalCode: string | null;
   coordinates: string | null;
   clientId: string | null;
-  budgetTotal: Prisma.Decimal | null;
-  budgetConsumed: Prisma.Decimal | null;
+  budgetTotal: any | null;
+  budgetConsumed: any | null;
   startDate: Date | null;
   endDate: Date | null;
   actualEndDate: Date | null;
@@ -280,7 +278,7 @@ export interface Assignment {
   startTime: Date | null;
   endTime: Date | null;
   status: AssignmentStatus;
-  plannedHours: Prisma.Decimal | null;
+  plannedHours: any | null;
   notes: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -353,7 +351,7 @@ export interface Evaluation {
   projectId: string | null;
   title: string;
   content: string;
-  score: Prisma.Decimal | null;
+  score: any | null;
   evaluatorId: string | null;
   evaluatorName: string | null;
   evaluationDate: Date;
@@ -397,7 +395,7 @@ export interface TimeEntry {
   date: Date;
   startTime: Date | null;
   endTime: Date | null;
-  duration: Prisma.Decimal;
+  duration: any;
   description: string | null;
   billable: boolean;
   createdAt: Date;
@@ -413,4 +411,3 @@ export interface TimeEntry {
 export interface users {
   id: string;
 }
-

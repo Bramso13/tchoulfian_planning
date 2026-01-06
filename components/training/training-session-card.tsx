@@ -1,7 +1,11 @@
 import { Calendar, MapPin, Users, Building2, Clock } from "lucide-react";
 
 import { StatusBadge } from "@/components/common/status-badge";
-import type { TrainingSession, TrainingEnrollment, Employee } from "@/lib/types";
+import type {
+  TrainingSession,
+  TrainingEnrollment,
+  Employee,
+} from "@/lib/types";
 import { TrainingStatus } from "@/lib/types";
 
 type TrainingSessionCardProps = {
@@ -49,11 +53,16 @@ export function TrainingSessionCard({
   employees,
 }: TrainingSessionCardProps) {
   const status = getSessionStatus(session);
-  const duration = calculateDuration(session.startDate, session.endDate);
+  const duration = calculateDuration(
+    session.startDate.toISOString(),
+    session.endDate.toISOString()
+  );
 
   // Count enrollments by status
   const enrolledCount = enrollments.filter(
-    (e) => e.status === TrainingStatus.ENROLLED || e.status === TrainingStatus.IN_PROGRESS
+    (e) =>
+      e.status === TrainingStatus.ENROLLED ||
+      e.status === TrainingStatus.IN_PROGRESS
   ).length;
   const completedCount = enrollments.filter(
     (e) => e.status === TrainingStatus.COMPLETED
@@ -66,10 +75,16 @@ export function TrainingSessionCard({
 
   // Get enrolled employees
   const enrolledEmployees = enrollments
-    .filter((e) => e.status === TrainingStatus.ENROLLED || e.status === TrainingStatus.IN_PROGRESS)
+    .filter(
+      (e) =>
+        e.status === TrainingStatus.ENROLLED ||
+        e.status === TrainingStatus.IN_PROGRESS
+    )
     .slice(0, 3)
     .map((enrollment) => {
-      const employee = employees.find((emp) => emp.id === enrollment.employeeId);
+      const employee = employees.find(
+        (emp) => emp.id === enrollment.employeeId
+      );
       return employee?.profile?.full_name || "Inconnu";
     });
 
@@ -93,7 +108,8 @@ export function TrainingSessionCard({
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-slate-400" />
           <span>
-            {formatDate(session.startDate)} - {formatDate(session.endDate)}
+            {formatDate(session.startDate.toISOString())} -{" "}
+            {formatDate(session.endDate.toISOString())}
           </span>
         </div>
 
@@ -125,9 +141,7 @@ export function TrainingSessionCard({
             {session.maxParticipants ? ` / ${session.maxParticipants}` : ""}
           </span>
           <span className="text-sm text-slate-500">inscrits</span>
-          {isFull && (
-            <StatusBadge label="Complet" tone="amber" dot={false} />
-          )}
+          {isFull && <StatusBadge label="Complet" tone="amber" dot={false} />}
         </div>
 
         {completedCount > 0 && (

@@ -1,18 +1,38 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
-    const alerts = await prisma.alert.findMany({
-      include: {
-        project: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const supabase = await createClient();
 
-    return NextResponse.json(alerts);
+    const { data: alerts, error: alertsError } = await supabase
+      .from("Alert")
+      .select("*")
+      .order("createdAt", { ascending: false });
+
+    if (alertsError) throw alertsError;
+
+    // Enrichir avec les projets
+    const enrichedAlerts = await Promise.all(
+      (alerts || []).map(async (alert) => {
+        let project = null;
+        if (alert.projectId) {
+          const { data } = await supabase
+            .from("Project")
+            .select("*")
+            .eq("id", alert.projectId)
+            .single();
+          project = data;
+        }
+
+        return {
+          ...alert,
+          project,
+        };
+      })
+    );
+
+    return NextResponse.json(enrichedAlerts);
   } catch (error) {
     console.error("Erreur lors de la récupération des alertes:", error);
     return NextResponse.json(
@@ -25,20 +45,40 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const supabase = await createClient();
 
-    const alert = await prisma.alert.create({
-      data: {
-        projectId: body.projectId,
-        title: body.title,
-        description: body.description,
-        severity: body.severity,
-      },
-      include: {
-        project: true,
-      },
-    });
+    const alertData = {
+      projectId: body.projectId,
+      title: body.title,
+      description: body.description,
+      severity: body.severity,
+    };
 
-    return NextResponse.json(alert, { status: 201 });
+    const { data: alert, error: createError } = await supabase
+      .from("Alert")
+      .insert(alertData)
+      .select("*")
+      .single();
+
+    if (createError) throw createError;
+
+    // Enrichir avec le projet
+    let project = null;
+    if (alert.projectId) {
+      const { data } = await supabase
+        .from("Project")
+        .select("*")
+        .eq("id", alert.projectId)
+        .single();
+      project = data;
+    }
+
+    const enrichedAlert = {
+      ...alert,
+      project,
+    };
+
+    return NextResponse.json(enrichedAlert, { status: 201 });
   } catch (error) {
     console.error("Erreur lors de la création de l'alerte:", error);
     return NextResponse.json(

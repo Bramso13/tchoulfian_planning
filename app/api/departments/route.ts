@@ -1,22 +1,49 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
-    const departments = await prisma.department.findMany({
-      include: {
-        employees: {
-          include: {
-            profile: true,
-          },
-        },
-      },
-      orderBy: {
-        name: "asc",
-      },
-    });
+    const supabase = await createClient();
 
-    return NextResponse.json(departments);
+    const { data: departments, error: departmentsError } = await supabase
+      .from("Department")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (departmentsError) throw departmentsError;
+
+    // Enrichir avec les employés
+    const enrichedDepartments = await Promise.all(
+      (departments || []).map(async (department) => {
+        const { data: employeesData } = await supabase
+          .from("Employee")
+          .select("*")
+          .eq("departmentId", department.id)
+          .is("deletedAt", null);
+
+        const employees = await Promise.all(
+          (employeesData || []).map(async (employee) => {
+            let profile = null;
+            if (employee.profileId) {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", employee.profileId)
+                .single();
+              profile = profileData;
+            }
+            return { ...employee, profile };
+          })
+        );
+
+        return {
+          ...department,
+          employees: employees || [],
+        };
+      })
+    );
+
+    return NextResponse.json(enrichedDepartments);
   } catch (error) {
     console.error("Erreur lors de la récupération des départements:", error);
     return NextResponse.json(
@@ -29,24 +56,51 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const supabase = await createClient();
 
-    const department = await prisma.department.create({
-      data: {
-        name: body.name,
-        description: body.description,
-        code: body.code,
-        managerId: body.managerId,
-      },
-      include: {
-        employees: {
-          include: {
-            profile: true,
-          },
-        },
-      },
-    });
+    const departmentData = {
+      name: body.name,
+      description: body.description || null,
+      code: body.code || null,
+      managerId: body.managerId || null,
+    };
 
-    return NextResponse.json(department, { status: 201 });
+    const { data: department, error: createError } = await supabase
+      .from("Department")
+      .insert(departmentData)
+      .select("*")
+      .single();
+
+    if (createError) throw createError;
+
+    // Enrichir avec les employés
+    const { data: employeesData } = await supabase
+      .from("Employee")
+      .select("*")
+      .eq("departmentId", department.id)
+      .is("deletedAt", null);
+
+    const employees = await Promise.all(
+      (employeesData || []).map(async (employee) => {
+        let profile = null;
+        if (employee.profileId) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", employee.profileId)
+            .single();
+          profile = profileData;
+        }
+        return { ...employee, profile };
+      })
+    );
+
+    const enrichedDepartment = {
+      ...department,
+      employees: employees || [],
+    };
+
+    return NextResponse.json(enrichedDepartment, { status: 201 });
   } catch (error) {
     console.error("Erreur lors de la création du département:", error);
     return NextResponse.json(
