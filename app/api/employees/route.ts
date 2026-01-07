@@ -113,6 +113,24 @@ export async function POST(request: Request) {
     const body = await request.json();
     const supabase = await createClient();
 
+    // Fonction pour formater les dates
+    const formatDate = (date: string | Date | null): string | null => {
+      if (!date) return null;
+      if (typeof date === 'string') {
+        // Si c'est déjà une string, vérifier le format
+        if (date.includes('T')) {
+          // Format ISO complet, extraire juste la date
+          return date.split('T')[0];
+        }
+        return date;
+      }
+      if (date instanceof Date) {
+        if (isNaN(date.getTime())) return null;
+        return date.toISOString().split('T')[0]; // Format YYYY-MM-DD
+      }
+      return null;
+    };
+
     const employeeData = {
       profileId: body.profileId || null,
       name: body.name || null,
@@ -126,10 +144,10 @@ export async function POST(request: Request) {
       city: body.city || null,
       postalCode: body.postalCode || null,
       imageUrl: body.imageUrl || null,
-      hireDate: body.hireDate || null,
-      terminationDate: body.terminationDate || null,
-      birthDate: body.birthDate || null,
-      availableFrom: body.availableFrom || null,
+      hireDate: formatDate(body.hireDate),
+      terminationDate: formatDate(body.terminationDate),
+      birthDate: formatDate(body.birthDate),
+      availableFrom: formatDate(body.availableFrom),
       notes: body.notes || null,
     };
 
@@ -139,7 +157,10 @@ export async function POST(request: Request) {
       .select("*")
       .single();
 
-    if (createError) throw createError;
+    if (createError) {
+      console.error("Erreur Supabase lors de la création:", createError);
+      throw createError;
+    }
 
     // Enrichir avec les relations
     let profile = null;
@@ -172,10 +193,11 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json(enrichedEmployee, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la création de l'employé:", error);
+    const errorMessage = error?.message || error?.details || "Erreur lors de la création de l'employé";
     return NextResponse.json(
-      { error: "Erreur lors de la création de l'employé" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

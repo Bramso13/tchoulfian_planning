@@ -1,4 +1,5 @@
-import { Calendar, MapPin, Users, Building2, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, Building2, Clock, Settings } from "lucide-react";
+import { useState } from "react";
 
 import { StatusBadge } from "@/components/common/status-badge";
 import type {
@@ -7,6 +8,7 @@ import type {
   Employee,
 } from "@/lib/types";
 import { TrainingStatus } from "@/lib/types";
+import { ManageEnrollmentsModal } from "./manage-enrollments-modal";
 
 type TrainingSessionCardProps = {
   session: TrainingSession;
@@ -52,11 +54,23 @@ export function TrainingSessionCard({
   enrollments,
   employees,
 }: TrainingSessionCardProps) {
+  const [isManageModalOpen, setIsManageModalOpen] = useState(false);
   const status = getSessionStatus(session);
-  const duration = calculateDuration(
-    session.startDate.toISOString(),
-    session.endDate.toISOString()
-  );
+  
+  // Convertir les dates en string si ce sont des objets Date
+  const startDateStr = typeof session.startDate === 'string' 
+    ? session.startDate 
+    : session.startDate instanceof Date 
+    ? session.startDate.toISOString() 
+    : String(session.startDate);
+  
+  const endDateStr = typeof session.endDate === 'string' 
+    ? session.endDate 
+    : session.endDate instanceof Date 
+    ? session.endDate.toISOString() 
+    : String(session.endDate);
+  
+  const duration = calculateDuration(startDateStr, endDateStr);
 
   // Count enrollments by status
   const enrolledCount = enrollments.filter(
@@ -82,34 +96,41 @@ export function TrainingSessionCard({
     )
     .slice(0, 3)
     .map((enrollment) => {
-      const employee = employees.find(
+      // Utiliser l'employé enrichi de l'enrollment ou chercher dans la liste
+      const employee = enrollment.employee || employees.find(
         (emp) => emp.id === enrollment.employeeId
       );
-      return employee?.profile?.full_name || "Inconnu";
+      return employee?.profile?.full_name || employee?.name || "Inconnu";
     });
 
   return (
-    <article className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      <header className="flex items-start justify-between">
-        <div className="flex-1">
-          <h3 className="text-base font-semibold text-slate-900">
-            {session.name}
-          </h3>
-          {session.description && (
-            <p className="mt-1 text-sm text-slate-500 line-clamp-2">
-              {session.description}
-            </p>
-          )}
-        </div>
-        <StatusBadge label={status.label} tone={status.tone} />
-      </header>
+    <>
+      <ManageEnrollmentsModal
+        isOpen={isManageModalOpen}
+        onClose={() => setIsManageModalOpen(false)}
+        session={session}
+      />
+      
+      <article className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+        <header className="flex items-start justify-between">
+          <div className="flex-1">
+            <h3 className="text-base font-semibold text-slate-900">
+              {session.name}
+            </h3>
+            {session.description && (
+              <p className="mt-1 text-sm text-slate-500 line-clamp-2">
+                {session.description}
+              </p>
+            )}
+          </div>
+          <StatusBadge label={status.label} tone={status.tone} />
+        </header>
 
       <div className="space-y-2 text-sm text-slate-600">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-slate-400" />
           <span>
-            {formatDate(session.startDate.toISOString())} -{" "}
-            {formatDate(session.endDate.toISOString())}
+            {formatDate(startDateStr)} - {formatDate(endDateStr)}
           </span>
         </div>
 
@@ -144,13 +165,23 @@ export function TrainingSessionCard({
           {isFull && <StatusBadge label="Complet" tone="amber" dot={false} />}
         </div>
 
-        {completedCount > 0 && (
-          <StatusBadge
-            label={`${completedCount} certifié${completedCount > 1 ? "s" : ""}`}
-            tone="emerald"
-            dot={false}
-          />
-        )}
+        <div className="flex items-center gap-2">
+          {completedCount > 0 && (
+            <StatusBadge
+              label={`${completedCount} certifié${completedCount > 1 ? "s" : ""}`}
+              tone="emerald"
+              dot={false}
+            />
+          )}
+          <button
+            onClick={() => setIsManageModalOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600"
+            title="Gérer les participants"
+          >
+            <Settings className="h-3.5 w-3.5" />
+            Gérer
+          </button>
+        </div>
       </div>
 
       {enrolledEmployees.length > 0 && (
@@ -176,5 +207,6 @@ export function TrainingSessionCard({
         </div>
       )}
     </article>
+    </>
   );
 }

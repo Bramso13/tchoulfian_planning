@@ -280,6 +280,7 @@ export interface Assignment {
   status: AssignmentStatus;
   plannedHours: any | null;
   notes: string | null;
+  isLocked: boolean;
   createdAt: Date;
   updatedAt: Date;
   employee: Employee;

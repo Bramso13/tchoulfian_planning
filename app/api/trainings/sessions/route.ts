@@ -15,6 +15,7 @@ export async function GET() {
     // Enrichir avec les enrollments
     const enrichedSessions = await Promise.all(
       (trainingSessions || []).map(async (session) => {
+        // Enrollments
         const { data: enrollmentsData } = await supabase
           .from("TrainingEnrollment")
           .select("*")
@@ -69,13 +70,39 @@ export async function POST(request: Request) {
     const body = await request.json();
     const supabase = await createClient();
 
+    // Convertir les dates au bon format
+    const formatDate = (date: string | Date | null): string | null => {
+      if (!date) return null;
+      const d = typeof date === 'string' ? new Date(date) : date;
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString().split('T')[0]; // Format YYYY-MM-DD pour DATE
+    };
+
+    // Validation des champs requis
+    if (!body.name || !body.startDate || !body.endDate) {
+      return NextResponse.json(
+        { error: "Les champs name, startDate et endDate sont requis" },
+        { status: 400 }
+      );
+    }
+
+    const formattedStartDate = formatDate(body.startDate);
+    const formattedEndDate = formatDate(body.endDate);
+    
+    if (!formattedStartDate || !formattedEndDate) {
+      return NextResponse.json(
+        { error: "Les dates sont invalides" },
+        { status: 400 }
+      );
+    }
+
     const sessionData = {
       name: body.name,
       description: body.description || null,
       location: body.location || null,
       provider: body.provider || null,
-      startDate: body.startDate,
-      endDate: body.endDate,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
       maxParticipants: body.maxParticipants || null,
     };
 
@@ -93,10 +120,11 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json(enrichedSession, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la création de la session:", error);
+    const errorMessage = error?.message || error?.details || "Erreur lors de la création de la session de formation";
     return NextResponse.json(
-      { error: "Erreur lors de la création de la session de formation" },
+      { error: errorMessage },
       { status: 500 }
     );
   }

@@ -30,17 +30,17 @@ export function SignUpForm({
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
     if (password !== repeatPassword) {
-      setError("Passwords do not match");
+      setError("Les mots de passe ne correspondent pas");
       setIsLoading(false);
       return;
     }
 
     try {
+      const supabase = createClient();
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
@@ -51,7 +51,17 @@ export function SignUpForm({
           },
         },
       });
-      if (error) throw error;
+      
+      if (error) {
+        // Messages d'erreur plus clairs
+        if (error.message.includes("Invalid API key") || error.message.includes("401")) {
+          throw new Error(
+            "Clé API Supabase invalide. " +
+            "Veuillez configurer NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY dans votre fichier .env.local"
+          );
+        }
+        throw error;
+      }
 
       const userId = data.user?.id;
       if (!userId) {

@@ -135,6 +135,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const supabase = await createClient();
 
+    const isValidUuid = (value: unknown) =>
+      typeof value === "string" && /^[0-9a-fA-F-]{36}$/.test(value);
+
     const projectData = {
       name: body.name,
       description: body.description || null,
@@ -144,13 +147,17 @@ export async function POST(request: Request) {
       city: body.city || null,
       postalCode: body.postalCode || null,
       coordinates: body.coordinates || null,
-      clientId: body.clientId || null,
+      // Si l'ID client ou chef de projet n'est pas un UUID valide,
+      // on l'ignore pour éviter les erreurs côté base.
+      clientId: isValidUuid(body.clientId) ? body.clientId : null,
       budgetTotal: body.budgetTotal || null,
       budgetConsumed: body.budgetConsumed || null,
       startDate: body.startDate || null,
       endDate: body.endDate || null,
       progress: body.progress || 0,
-      projectManagerId: body.projectManagerId || null,
+      projectManagerId: isValidUuid(body.projectManagerId)
+        ? body.projectManagerId
+        : null,
     };
 
     const { data: project, error: createError } = await supabase

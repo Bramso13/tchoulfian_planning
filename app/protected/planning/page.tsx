@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   CalendarDays,
   Clock,
@@ -25,13 +25,46 @@ import {
 
 import { AddAssignmentModal } from "@/components/planning/add-assignment-modal";
 import { useDatabase } from "@/app/protected/database-context";
-import { AssignmentStatus, EmployeeStatus, ProjectStatus } from "@/lib/types";
+import { AssignmentStatus, EmployeeStatus, ProjectStatus, ContractType } from "@/lib/types";
 import type { Employee, Assignment } from "@/lib/types";
+import { getEmployeeAvatarClasses, getEmployeeIndicatorDot } from "@/lib/utils/employee-styling";
 
 // Types
 type ViewType = "week" | "month" | "gantt";
 
 // Helper functions
+const getEmployeeHabilitation = (employee?: Employee | null) => {
+  if (!employee || !employee.certifications || employee.certifications.length === 0) {
+    return null;
+  }
+
+  // On prend la première certification comme habilitation principale
+  return employee.certifications[0]?.name || null;
+};
+
+const getEmployeeSkills = (employee?: Employee | null): string[] => {
+  if (!employee || !employee.skills || employee.skills.length === 0) {
+    return [];
+  }
+
+  // Extraire les noms des compétences
+  return employee.skills
+    .map((employeeSkill) => employeeSkill.skill?.name)
+    .filter((name): name is string => !!name);
+};
+
+const getContractTypeLabel = (contractType: ContractType): string => {
+  const labels: Record<ContractType, string> = {
+    [ContractType.CDI]: "CDI",
+    [ContractType.CDD]: "CDD",
+    [ContractType.INTERIM]: "Intérim",
+    [ContractType.FREELANCE]: "Freelance",
+    [ContractType.SUBCONTRACTOR]: "Sous-traitant",
+    [ContractType.APPRENTICE]: "Apprenti",
+  };
+  return labels[contractType] || contractType;
+};
+
 const getAssignmentColor = (status: AssignmentStatus) => {
   switch (status) {
     case AssignmentStatus.CONFIRMED:
@@ -180,6 +213,10 @@ function DraggableEmployee({
     },
   });
 
+  const habilitation = getEmployeeHabilitation(employee);
+  const skills = getEmployeeSkills(employee);
+  const avatarClasses = getEmployeeAvatarClasses(employee, "sm");
+
   return (
     <div
       ref={setNodeRef}
@@ -189,7 +226,7 @@ function DraggableEmployee({
         isDragging ? "opacity-50 border-blue-400" : "border-transparent"
       }`}
     >
-      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-semibold text-blue-600 overflow-hidden">
+      <div className={avatarClasses}>
         {employee.imageUrl ? (
           <img
             src={employee.imageUrl}
@@ -207,29 +244,47 @@ function DraggableEmployee({
         <div className="text-xs text-slate-500 truncate">
           {employee.jobTitle}
         </div>
-        <div
-          className={`text-xs ${
-            weeklyHours >= 35 ? "text-rose-500 font-semibold" : "text-slate-400"
-          }`}
-        >
-          {weeklyHours > 0
-            ? `${Math.round(weeklyHours)}h prévues cette semaine`
-            : "Aucune heure planifiée cette semaine"}
+        <div className="space-y-0.5">
+          <div className="text-[11px] text-slate-600 font-medium truncate">
+            {getContractTypeLabel(employee.contractType)}
+          </div>
+          <div
+            className={`text-xs ${
+              weeklyHours >= 35
+                ? "text-rose-500 font-semibold"
+                : "text-slate-400"
+            }`}
+          >
+            {weeklyHours > 0
+              ? `${Math.round(weeklyHours)}h prévues cette semaine`
+              : "Aucune heure planifiée cette semaine"}
+          </div>
+          {habilitation && (
+            <div className="text-[11px] text-slate-500 truncate">
+              Habilitation : {habilitation}
+            </div>
+          )}
+          {skills.length > 0 && (
+            <div className="text-[11px] text-slate-500 truncate">
+              Compétences : {skills.slice(0, 2).join(", ")}
+              {skills.length > 2 && ` (+${skills.length - 2})`}
+            </div>
+          )}
         </div>
       </div>
-      <div
-        className={`h-2 w-2 rounded-full ${
-          employee.status === EmployeeStatus.AVAILABLE
-            ? "bg-emerald-500"
-            : "bg-amber-500"
-        }`}
-      />
+      <div className={getEmployeeIndicatorDot(employee)} />
     </div>
   );
 }
 
 // Draggable Assignment Component
-function DraggableAssignment({ assignment }: { assignment: Assignment }) {
+function DraggableAssignment({ 
+  assignment,
+  allAssignments = []
+}: { 
+  assignment: Assignment;
+  allAssignments?: Assignment[];
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `assignment-${assignment.id}`,
     data: {
@@ -238,28 +293,175 @@ function DraggableAssignment({ assignment }: { assignment: Assignment }) {
     },
   });
 
+  const [isHovered, setIsHovered] = useState(false);
+  const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
+  const employee = assignment.employee as Employee | undefined;
+  const habilitation = getEmployeeHabilitation(employee || null);
+  const skills = getEmployeeSkills(employee || null);
+  const avatarClasses = employee ? getEmployeeAvatarClasses(employee, "sm") : "h-5 w-5 rounded-full";
+
+  // Récupérer les projets uniques de l'employé depuis toutes les affectations
+  const employeeProjects = useMemo(() => {
+    if (!employee?.id) return [];
+    const projectsMap = new Map();
+    allAssignments
+      .filter((a) => a.employeeId === employee.id && a.project && a.project.name)
+      .forEach((a) => {
+        if (a.project && !projectsMap.has(a.project.id)) {
+          projectsMap.set(a.project.id, a.project);
+        }
+      });
+    return Array.from(projectsMap.values());
+  }, [employee?.id, allAssignments]);
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setHoverPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + 8,
+    });
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className={`rounded px-2 py-1 text-xs font-semibold cursor-move flex items-center justify-center ${getAssignmentColor(
-        assignment.status
-      )} ${isDragging ? "opacity-50" : ""}`}
-      title={`${assignment.employee?.name || "?"} - ${
-        assignment.role || "Pas de rôle"
-      }`}
-    >
-      {assignment.employee?.imageUrl ? (
-        <img
-          src={assignment.employee.imageUrl}
-          alt={assignment.employee.name || "?"}
-          className="h-5 w-5 rounded-full object-cover"
-        />
-      ) : (
-        getInitials(assignment.employee?.name || "?")
+    <>
+      <div
+        className="relative inline-flex"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div
+          ref={setNodeRef}
+          {...listeners}
+          {...attributes}
+          className={`rounded px-2 py-1 text-xs font-semibold cursor-move flex items-center justify-center ${getAssignmentColor(
+            assignment.status
+          )} ${isDragging ? "opacity-50" : ""}`}
+          title={`${assignment.employee?.name || "?"} - ${
+            assignment.role || "Pas de rôle"
+          }`}
+        >
+          {employee ? (
+            <div className={avatarClasses}>
+              {employee.imageUrl ? (
+                <img
+                  src={employee.imageUrl}
+                  alt={employee.name || "?"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-[10px]">{getInitials(employee.name || "?")}</span>
+              )}
+            </div>
+          ) : assignment.employee?.imageUrl ? (
+            <img
+              src={assignment.employee.imageUrl}
+              alt={assignment.employee.name || "?"}
+              className="h-5 w-5 rounded-full object-cover"
+            />
+          ) : (
+            <span className="text-[10px]">{getInitials(assignment.employee?.name || "?")}</span>
+          )}
+        </div>
+      </div>
+
+      {isHovered && employee && (
+          <div
+            className="fixed z-[9999] w-72 rounded-xl border border-slate-200 bg-white p-4 shadow-2xl pointer-events-none"
+            style={{
+              left: `${hoverPosition.x}px`,
+              top: `${hoverPosition.y}px`,
+              transform: 'translateX(-50%)',
+            }}
+          >
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 pb-2 border-b border-slate-100">
+                <div className={getEmployeeAvatarClasses(employee, "md")}>
+                  {employee.imageUrl ? (
+                    <img
+                      src={employee.imageUrl}
+                      alt={employee.name || "?"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    getInitials(employee.name || "?")
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-sm text-slate-900 truncate">
+                    {employee.name || "Sans nom"}
+                  </div>
+                  <div className="text-xs text-slate-500 truncate">
+                    {employee.jobTitle || "Non renseigné"}
+                  </div>
+                  <div className="text-[11px] text-slate-600 font-medium mt-0.5">
+                    {getContractTypeLabel(employee.contractType)}
+                  </div>
+                </div>
+              </div>
+
+              {habilitation && (
+                <div className="flex items-start gap-2">
+                  <div className="text-xs font-medium text-slate-400 min-w-[80px]">
+                    Habilitation :
+                  </div>
+                  <div className="text-xs text-slate-700 flex-1">
+                    {habilitation}
+                  </div>
+                </div>
+              )}
+
+              {skills.length > 0 && (
+                <div className="flex items-start gap-2">
+                  <div className="text-xs font-medium text-slate-400 min-w-[80px]">
+                    Compétences :
+                  </div>
+                  <div className="text-xs text-slate-700 flex-1">
+                    {skills.slice(0, 3).join(", ")}
+                    {skills.length > 3 && (
+                      <span className="text-slate-400"> (+{skills.length - 3})</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {employeeProjects.length > 0 && (
+                <div className="flex items-start gap-2 pt-2 border-t border-slate-100">
+                  <div className="text-xs font-medium text-slate-400 min-w-[80px]">
+                    Projets :
+                  </div>
+                  <div className="text-xs text-slate-700 flex-1 space-y-1">
+                    {employeeProjects.slice(0, 3).map((project) => (
+                      <div key={project.id} className="flex items-center gap-1">
+                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                        <span className="truncate">{project.name}</span>
+                      </div>
+                    ))}
+                    {employeeProjects.length > 3 && (
+                      <div className="text-slate-400 text-[10px]">
+                        +{employeeProjects.length - 3} autre{employeeProjects.length - 3 > 1 ? 's' : ''}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-start gap-2 pt-2 border-t border-slate-100">
+                <div className="text-xs font-medium text-slate-400 min-w-[80px]">
+                  Affectation :
+                </div>
+                <div className="text-xs text-slate-700 flex-1">
+                  {assignment.role || "Pas de rôle spécifié"}
+                </div>
+              </div>
+            </div>
+          </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -333,11 +535,13 @@ function DroppableMonthDayCell({
   assignments,
   isCurrentMonth,
   onAddClick,
+  allAssignments = [],
 }: {
   day: Date;
   assignments: Assignment[];
   isCurrentMonth: boolean;
   onAddClick: () => void;
+  allAssignments?: Assignment[];
 }) {
   const { isOver, setNodeRef } = useDroppable({
     id: `month-cell-${day.toISOString()}`,
@@ -381,7 +585,11 @@ function DroppableMonthDayCell({
 
       <div className="space-y-1 max-h-[80px] overflow-y-auto">
         {assignments.map((assignment) => (
-          <DraggableAssignment key={assignment.id} assignment={assignment} />
+          <DraggableAssignment 
+            key={assignment.id} 
+            assignment={assignment}
+            allAssignments={allAssignments}
+          />
         ))}
       </div>
     </div>
@@ -470,9 +678,20 @@ export default function PlanningPage() {
     Object.keys(weeklyAssignmentsByEmployee)
   );
 
-  const nonAssignedThisWeekCount = plannableEmployees.filter(
-    (e) => !assignedEmployeeIdsThisWeek.has(e.id)
-  ).length;
+  // Récupérer les IDs des employés verrouillés (sur n'importe quel projet)
+  const lockedEmployeeIds = new Set(
+    assignments.data
+      .filter((a) => a.isLocked === true)
+      .map((a) => a.employeeId)
+  );
+
+  const nonAssignedThisWeekEmployees = plannableEmployees.filter(
+    (e) => 
+      !assignedEmployeeIdsThisWeek.has(e.id) &&
+      !lockedEmployeeIds.has(e.id) // Exclure les employés verrouillés
+  );
+
+  const nonAssignedThisWeekCount = nonAssignedThisWeekEmployees.length;
 
   const occupancyRate =
     employees.data.length > 0
@@ -480,6 +699,33 @@ export default function PlanningPage() {
       : 0;
 
   const conflictsCount = 0; // TODO: Calculate conflicts
+
+  // Calculer l'effectif total d'un projet (somme des jours de toutes les affectations)
+  const calculateProjectStaffing = useCallback((projectId: string): number => {
+    const projectAssignments = assignments.data.filter(
+      (a) => a.projectId === projectId && a.status !== AssignmentStatus.CANCELLED
+    );
+
+    let totalDays = 0;
+
+    projectAssignments.forEach((assignment) => {
+      if (assignment.endDate) {
+        // Calculer le nombre de jours entre startDate et endDate (inclus)
+        const start = new Date(assignment.startDate);
+        const end = new Date(assignment.endDate);
+        // S'assurer que les dates sont valides
+        if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+          const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+          totalDays += days;
+        }
+      } else {
+        // Une seule journée si endDate est null
+        totalDays += 1;
+      }
+    });
+
+    return totalDays;
+  }, [assignments.data]);
 
   // Get assignments by project and day
   const getAssignmentsForProjectAndDay = (projectId: string, day: Date) => {
@@ -880,13 +1126,12 @@ export default function PlanningPage() {
           </div>
 
           <div className="space-y-2">
-            {plannableEmployees.map((employee) => {
-              const weeklyLoad = weeklyAssignmentsByEmployee[employee.id];
+            {nonAssignedThisWeekEmployees.map((employee) => {
               return (
                 <DraggableEmployee
                   key={employee.id}
                   employee={employee}
-                  weeklyHours={weeklyLoad?.hours ?? 0}
+                  weeklyHours={0}
                 />
               );
             })}
@@ -947,6 +1192,9 @@ export default function PlanningPage() {
                     <div className="text-xs text-slate-500">
                       {project.city || "Non spécifié"}
                     </div>
+                    <div className="text-xs font-medium text-blue-600 mt-1">
+                      Effectif : {calculateProjectStaffing(project.id)}
+                    </div>
                   </div>
 
                   {/* Day cells with assignments */}
@@ -967,6 +1215,7 @@ export default function PlanningPage() {
                           <DraggableAssignment
                             key={assignment.id}
                             assignment={assignment}
+                            allAssignments={assignments.data}
                           />
                         ))}
                       </DroppableCell>
@@ -1001,13 +1250,12 @@ export default function PlanningPage() {
             </div>
 
             <div className="space-y-2">
-              {plannableEmployees.map((employee) => {
-                const weeklyLoad = weeklyAssignmentsByEmployee[employee.id];
+              {nonAssignedThisWeekEmployees.map((employee) => {
                 return (
                   <DraggableEmployee
                     key={employee.id}
                     employee={employee}
-                    weeklyHours={weeklyLoad?.hours ?? 0}
+                    weeklyHours={0}
                   />
                 );
               })}
@@ -1067,7 +1315,7 @@ export default function PlanningPage() {
                 </div>
 
                 {/* Calendar days */}
-                <div className="grid grid-cols-7">
+                <div className="grid grid-cols-7 relative">
                   {getMonthDays(currentMonth).map((day, index) => {
                     const isCurrentMonth = day.getMonth() === currentMonth.getMonth();
                     const dayAssignments = assignments.data.filter((assignment) => {
@@ -1085,6 +1333,7 @@ export default function PlanningPage() {
                           setSelectedDate(day.toISOString().split("T")[0]);
                           setIsModalOpen(true);
                         }}
+                        allAssignments={assignments.data}
                       />
                     );
                   })}
@@ -1202,6 +1451,9 @@ export default function PlanningPage() {
                           <div className="text-xs text-slate-500">
                             {projectAssignments.length} affectation
                             {projectAssignments.length > 1 ? "s" : ""}
+                          </div>
+                          <div className="text-xs font-medium text-blue-600 mt-1">
+                            Effectif : {calculateProjectStaffing(project.id)}
                           </div>
                         </div>
 
@@ -1332,7 +1584,7 @@ export default function PlanningPage() {
       <DragOverlay>
         {activeEmployee ? (
           <div className="flex items-center gap-2 rounded-lg bg-white p-2 shadow-lg border-2 border-blue-500">
-            <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-semibold text-blue-600 overflow-hidden">
+            <div className={getEmployeeAvatarClasses(activeEmployee, "sm")}>
               {activeEmployee.imageUrl ? (
                 <img
                   src={activeEmployee.imageUrl}
@@ -1352,21 +1604,23 @@ export default function PlanningPage() {
               </div>
             </div>
           </div>
-        ) : activeAssignment ? (
+        ) : activeAssignment && activeAssignment.employee ? (
           <div
             className={`rounded px-3 py-2 text-sm font-semibold shadow-lg border-2 border-blue-500 flex items-center justify-center ${getAssignmentColor(
               activeAssignment.status
             )}`}
           >
-            {activeAssignment.employee?.imageUrl ? (
-              <img
-                src={activeAssignment.employee.imageUrl}
-                alt={activeAssignment.employee.name || "?"}
-                className="h-6 w-6 rounded-full object-cover"
-              />
-            ) : (
-              getInitials(activeAssignment.employee?.name || "?")
-            )}
+            <div className={getEmployeeAvatarClasses(activeAssignment.employee as Employee, "sm")}>
+              {activeAssignment.employee.imageUrl ? (
+                <img
+                  src={activeAssignment.employee.imageUrl}
+                  alt={activeAssignment.employee.name || "?"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-[10px]">{getInitials(activeAssignment.employee.name || "?")}</span>
+              )}
+            </div>
           </div>
         ) : null}
       </DragOverlay>

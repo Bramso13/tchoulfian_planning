@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { AssignmentStatus } from "@/lib/types";
+import { AssignmentStatus, EmployeeStatus } from "@/lib/types";
 import { useDatabase } from "@/app/protected/database-context";
 
 interface AddAssignmentModalProps {
@@ -167,12 +167,18 @@ export function AddAssignmentModal({
                 className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option value="">Sélectionner un employé</option>
-                {employees.data.map((employee) => (
-                  <option key={employee.id} value={employee.id}>
-                    {employee.profile?.full_name || "Sans nom"} -{" "}
-                    {employee.jobTitle}
-                  </option>
-                ))}
+                {employees.data
+                  .filter(
+                    (e) =>
+                      e.status !== EmployeeStatus.TERMINATED &&
+                      e.status !== EmployeeStatus.ABSENT
+                  )
+                  .map((employee) => (
+                    <option key={employee.id} value={employee.id}>
+                      {employee.profile?.full_name || employee.name || "Sans nom"} -{" "}
+                      {employee.jobTitle || "Non renseigné"}
+                    </option>
+                  ))}
               </select>
               {selectedEmployee && (
                 <p className="mt-1 text-xs text-slate-500">

@@ -146,7 +146,7 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
         .substring(2)}-${Date.now()}.${fileExt}`;
       const filePath = `employees/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from("employee-photos")
         .upload(filePath, photoFile, {
           cacheControl: "3600",
@@ -155,6 +155,19 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
+        
+        // Si le bucket n'existe pas, on retourne null au lieu de bloquer
+        if (uploadError.message?.includes("Bucket not found") || 
+            uploadError.message?.includes("bucket") ||
+            uploadError.statusCode === "404") {
+          console.warn(
+            "Bucket 'employee-photos' non trouvé. " +
+            "Créez-le dans Supabase Storage pour activer l'upload de photos. " +
+            "Voir SETUP_STORAGE_BUCKET.md pour les instructions."
+          );
+          return null; // Permet de continuer sans photo
+        }
+        
         throw new Error(
           `Erreur lors de l'upload: ${uploadError.message || "Erreur inconnue"}`
         );
@@ -167,7 +180,16 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
       return publicUrl;
     } catch (error) {
       console.error("Erreur lors de l'upload de la photo:", error);
-      throw error; // Propager l'erreur pour l'afficher dans l'UI
+      
+      // Si c'est une erreur de bucket, on continue sans photo
+      if (error instanceof Error && 
+          (error.message.includes("Bucket not found") || 
+           error.message.includes("bucket"))) {
+        console.warn("Upload de photo ignoré - bucket non configuré");
+        return null;
+      }
+      
+      throw error; // Propager les autres erreurs
     } finally {
       setUploading(false);
     }
@@ -186,13 +208,22 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
           const uploadedUrl = await uploadPhoto();
           if (uploadedUrl) {
             imageUrl = uploadedUrl;
+          } else {
+            // Si l'upload a échoué mais que c'est juste le bucket manquant,
+            // on continue sans photo plutôt que de bloquer
+            console.warn("Création de l'employé sans photo (bucket non configuré)");
           }
         } catch (uploadError) {
-          throw new Error(
-            uploadError instanceof Error
-              ? uploadError.message
-              : "Erreur lors de l'upload de la photo. Vérifiez votre connexion."
-          );
+          // Seulement bloquer si c'est une vraie erreur (pas juste bucket manquant)
+          if (uploadError instanceof Error && 
+              !uploadError.message.includes("Bucket not found") &&
+              !uploadError.message.includes("bucket")) {
+            throw new Error(
+              uploadError.message || "Erreur lors de l'upload de la photo. Vérifiez votre connexion."
+            );
+          }
+          // Sinon, on continue sans photo
+          console.warn("Création de l'employé sans photo");
         }
       }
 

@@ -70,6 +70,8 @@ export default function EmployesPage() {
     fetchDepartments,
     skills,
     fetchSkills,
+    assignments,
+    fetchAssignments,
   } = useDatabase();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -93,7 +95,8 @@ export default function EmployesPage() {
     fetchEmployees();
     fetchDepartments();
     fetchSkills();
-  }, [fetchEmployees, fetchDepartments, fetchSkills]);
+    fetchAssignments();
+  }, [fetchEmployees, fetchDepartments, fetchSkills, fetchAssignments]);
 
   const departmentOptions = useMemo(
     () =>
@@ -226,6 +229,39 @@ export default function EmployesPage() {
   const inTrainingCount = employees.data.filter(
     (emp) => emp.status === EmployeeStatus.IN_TRAINING
   ).length;
+
+  // Fonction pour verrouiller/déverrouiller un employé sur un projet
+  const handleLockToggle = useCallback(async (employeeId: string, projectId: string, isLocked: boolean, assignmentId?: string) => {
+    try {
+      const response = await fetch(`/api/employees/${employeeId}/lock`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ projectId, isLocked, assignmentId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Erreur lors du verrouillage");
+      }
+
+      // Rafraîchir les données
+      await fetchEmployees();
+      await fetchAssignments();
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert(error instanceof Error ? error.message : "Erreur lors du verrouillage");
+    }
+  }, [fetchEmployees, fetchAssignments]);
+
+  // Récupérer les IDs des projets où chaque employé est verrouillé
+  // Note: On utilise maintenant directement assignment.isLocked dans le composant
+  const getLockedProjectsForEmployee = useCallback((employeeId: string): string[] => {
+    return assignments.data
+      .filter((a) => a.employeeId === employeeId && a.isLocked === true)
+      .map((a) => a.projectId);
+  }, [assignments.data]);
 
   const employeeStats = [
     {
@@ -518,7 +554,10 @@ export default function EmployesPage() {
                     status={statusInfo}
                     assignments={assignmentInfo}
                     skills={skills.slice(0, 3)}
+                    employee={employee}
                     onClick={() => router.push(`/protected/employes/${employee.id}`)}
+                    onLockToggle={handleLockToggle}
+                    lockedProjects={getLockedProjectsForEmployee(employee.id)}
                   />
                 );
               })}
